@@ -16,6 +16,7 @@ import {
 } from "react";
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
+import CurrencyInput from "@/components/ui/currency-input";
 
 interface Item {
   id: number;
@@ -61,7 +62,6 @@ export function Calculator() {
       people: [],
     },
   ]);
-  const [total, setTotal] = useState<number>(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   function handleUpdatePersonName(id: number, newName: string) {
@@ -75,7 +75,7 @@ export function Calculator() {
     const updatedItems = items.map((item) =>
       item.id === id ? { ...item, name: newName } : item,
     );
-    setPeople(updatedItems);
+    setItems(updatedItems);
   }
 
   function addPerson() {
@@ -88,12 +88,28 @@ export function Calculator() {
 
   function addItem() {
     const newItem: Item = {
+      id: getNextItemId(),
       name: "New Item",
       cost: 0,
       people: [],
     };
     setItems((prevItems) => [...prevItems, newItem]);
   }
+
+  function handleUpdateItemCost(
+    itemId: string | number | undefined,
+    newCost: number,
+  ) {
+    if (itemId) {
+      setItems(
+        items.map((item) =>
+          item.id === itemId ? { ...item, cost: newCost } : item,
+        ),
+      );
+    }
+  }
+
+  const totalCost = items.reduce((sum, item) => sum + item.cost, 0);
 
   function setRefElement(el: HTMLInputElement | null) {
     if (!el) return;
@@ -141,24 +157,34 @@ export function Calculator() {
               Add an item
             </Button>
             {items.map((item) => (
-              <div className="flex w-full justify-between items-center">
-                <Badge className="flex flex-col text-sm p-4" variant="outline">
+              <div>
+                <div className="flex w-full justify-between items-center">
                   {item.name}
-                  <div className="flex gap-x-2">
-                    {people.map((person) => (
-                      <Badge className="w-fit py-1 px-2" variant={"outline"}>
-                        {person.name}
-                      </Badge>
-                    ))}
+                  <div className="flex items-center justify-items-end">
+                    <CurrencyInput
+                      itemId={item.id}
+                      value={item.cost}
+                      onChange={handleUpdateItemCost}
+                      className="w-24"
+                    />
                   </div>
-                </Badge>
-                <div>${item.cost.toFixed(2)}</div>
+                  {/* <div>${item.cost.toFixed(2)}</div> */}
+                </div>
+                <div className="flex gap-x-2">
+                  {people.map((person) => (
+                    <Badge className="w-fit py-1 px-2" variant={"outline"}>
+                      {person.name}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
           <Separator className="my-4" />
           <div>
-            <p>Total: ${total}</p>
+            <p className="text-right">
+              <b>Total: </b>${totalCost.toFixed(2)}
+            </p>
           </div>
         </CardContent>
         <CardFooter></CardFooter>
