@@ -17,6 +17,7 @@ import {
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
 import CurrencyInput from "@/components/ui/currency-input";
+import { X } from "lucide-react";
 
 interface Item {
   id: number;
@@ -101,6 +102,10 @@ export function Calculator() {
     setPeople((prevPeople) => [...prevPeople, newPerson]);
   }
 
+  function removePerson(id: number) {
+    setPeople(people.filter((person) => person.id !== id));
+  }
+
   function addItem() {
     const newItem: Item = {
       id: getNextItemId(),
@@ -126,6 +131,26 @@ export function Calculator() {
 
   const totalCost = items.reduce((sum, item) => sum + item.cost, 0);
 
+  function calculateAmountsOwed(items: Array<Item>, people: Array<Person>) {
+    let amounts: Record<number, number> = {};
+
+    people.forEach((person) => (amounts[person.id] = 0));
+
+    items.forEach((item) => {
+      if (item.people.length > 0) {
+        const share = item.cost / item.people.length;
+        item.people.forEach((personId) => {
+          amounts[personId] += share;
+        });
+      }
+    });
+
+    return amounts;
+  }
+
+  const amountsOwed = calculateAmountsOwed(items, people);
+  console.log(amountsOwed);
+
   function setRefElement(el: HTMLInputElement | null) {
     if (!el) return;
     inputRef.current = el;
@@ -134,7 +159,7 @@ export function Calculator() {
 
   return (
     <div>
-      <Card className="hover:shadow-md w-[32rem] h-min-[32rem] transition-all ease-in duration-100">
+      <Card className="hover:shadow-md w-[24rem] h-min-[32rem] transition-all ease-in duration-100">
         <CardHeader>
           <CardTitle>
             <p className="text-lg">Splitt</p>
@@ -146,24 +171,34 @@ export function Calculator() {
               Add a person
             </Button>
             {people.map((person, index) => (
-              <Badge
-                key={index}
-                variant="outline"
-                className="w-fit py-2 px-4 text-sm"
-              >
-                <Input
-                  type="text"
-                  placeholder="Name"
-                  value={person.name}
-                  onChange={(e) =>
-                    handleUpdatePersonName(person.id, e.target.value)
-                  }
-                  className="p-0 w-fit border-none outline-none shadow-none focus-visible:ring-0"
-                  ref={(ref) => {
-                    index === people.length - 1 && setRefElement(ref);
-                  }}
-                />
-              </Badge>
+              <div className="flex justify-between items-center">
+                <div className="flex w-min items-center gap-x-1">
+                  <Button
+                    className="cursor-pointer w-6 h-6"
+                    variant="ghost"
+                    onClick={() => removePerson(person.id)}
+                  >
+                    <X />
+                  </Button>
+                  <Input
+                    type="text"
+                    placeholder="Name"
+                    value={person.name}
+                    onChange={(e) =>
+                      handleUpdatePersonName(person.id, e.target.value)
+                    }
+                    className="p-0 w-24 border-none outline-none shadow-none focus-visible:ring-0 underline"
+                    ref={(ref) => {
+                      index === people.length - 1 && setRefElement(ref);
+                    }}
+                  />
+                </div>
+                <div className="border-t-[3px] border-spacing-5 border-dotted w-full mr-12 relative"></div>
+                <div className="min-w-20 flex justify-between">
+                  <div>$</div>
+                  <div>{amountsOwed[person.id].toFixed(2)} </div>
+                </div>
+              </div>
             ))}
           </div>
           <Separator className="my-4" />
@@ -185,7 +220,7 @@ export function Calculator() {
                   </div>
                   {/* <div>${item.cost.toFixed(2)}</div> */}
                 </div>
-                <div className="flex gap-x-2">
+                <div className="flex flex-wrap gap-2">
                   {people.map((person) => (
                     <Button
                       className="w-fit p-2 cursor-pointer text-xs"
