@@ -22,7 +22,7 @@ interface Item {
   id: number;
   name: string;
   cost: number;
-  people: Array<Person>;
+  people: Array<number>;
 }
 
 interface Person {
@@ -76,6 +76,21 @@ export function Calculator() {
       item.id === id ? { ...item, name: newName } : item,
     );
     setItems(updatedItems);
+  }
+
+  function handleUpdatePersonOnItem(itemId: number, personId: number) {
+    setItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === itemId
+          ? {
+              ...item,
+              people: item.people.includes(personId)
+                ? item.people.filter((id) => id !== personId)
+                : [...item.people, personId],
+            }
+          : item,
+      ),
+    );
   }
 
   function addPerson() {
@@ -172,9 +187,17 @@ export function Calculator() {
                 </div>
                 <div className="flex gap-x-2">
                   {people.map((person) => (
-                    <Badge className="w-fit py-1 px-2" variant={"outline"}>
+                    <Button
+                      className="w-fit p-2 cursor-pointer text-xs"
+                      variant={
+                        item.people.includes(person.id) ? "default" : "outline"
+                      }
+                      onClick={() =>
+                        handleUpdatePersonOnItem(item.id, person.id)
+                      }
+                    >
                       {person.name}
-                    </Badge>
+                    </Button>
                   ))}
                 </div>
               </div>
