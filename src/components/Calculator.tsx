@@ -8,13 +8,7 @@ import {
 } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import {
-  useRef,
-  useState,
-  type ReactElement,
-  type ReactHTMLElement,
-} from "react";
-import { Badge } from "./ui/badge";
+import { useRef, useState } from "react";
 import { Separator } from "./ui/separator";
 import CurrencyInput from "@/components/ui/currency-input";
 import { X } from "lucide-react";
@@ -97,7 +91,7 @@ export function Calculator() {
   function addPerson() {
     const newPerson: Person = {
       id: getNextPersonId(),
-      name: "New Person",
+      name: "New person",
     };
     setPeople((prevPeople) => [...prevPeople, newPerson]);
   }
@@ -187,14 +181,13 @@ export function Calculator() {
                     onChange={(e) =>
                       handleUpdatePersonName(person.id, e.target.value)
                     }
-                    className="p-0 w-24 border-none outline-none shadow-none focus-visible:ring-0 underline"
+                    className="p-0 w-36 border-none outline-none shadow-none focus-visible:ring-0 underline"
                     ref={(ref) => {
                       index === people.length - 1 && setRefElement(ref);
                     }}
                   />
                 </div>
-                <div className="border-t-[3px] border-spacing-5 border-dotted w-full mr-12 relative"></div>
-                <div className="min-w-20 flex justify-between">
+                <div className="w-21 flex justify-between">
                   <div>$</div>
                   <div>{amountsOwed[person.id].toFixed(2)} </div>
                 </div>
