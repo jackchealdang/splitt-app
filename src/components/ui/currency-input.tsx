@@ -7,12 +7,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
+type ItemChangeHandler = (itemId: number | string, newValue: number) => void;
+type SimpleChangeHandler = (newValue: number) => void;
+
 interface CurrencyInputProps {
   id?: string;
   itemId?: string | number; // Added itemId to identify which item is being updated
   label?: string;
   value?: number;
-  onChange?: (itemId: string | number | undefined, newValue: number) => void; // Updated to include itemId
+  onChange?: ItemChangeHandler | SimpleChangeHandler;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
@@ -60,6 +63,16 @@ export default function CurrencyInput({
     }
   }, [value, isFocused]);
 
+  const handleValueChange = (numericValue: number) => {
+    if (!onChange) return;
+
+    if (itemId !== undefined) {
+      (onChange as ItemChangeHandler)(itemId, numericValue);
+    } else {
+      (onChange as SimpleChangeHandler)(numericValue);
+    }
+  };
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
 
@@ -77,7 +90,7 @@ export default function CurrencyInput({
 
     // Convert to number and call onChange with itemId
     const numericValue = parseToNumber(formattedForEditing);
-    onChange?.(itemId, numericValue);
+    handleValueChange(numericValue);
   };
 
   const handleBlur = () => {
@@ -85,7 +98,7 @@ export default function CurrencyInput({
     // Format the value when the input loses focus
     const numericValue = parseToNumber(displayValue);
     setDisplayValue(numericValue ? formatAsCurrency(numericValue) : "");
-    onChange?.(itemId, numericValue);
+    handleValueChange(numericValue);
   };
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {

@@ -8,7 +8,7 @@ import {
 } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Separator } from "./ui/separator";
 import CurrencyInput from "@/components/ui/currency-input";
 import { X } from "lucide-react";
@@ -57,7 +57,8 @@ export function Calculator() {
       people: [],
     },
   ]);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [tip, setTip] = useState<number>(0);
+  const [tax, setTax] = useState<number>(0);
 
   function handleUpdatePersonName(id: number, newName: string) {
     const updatedPeople = people.map((person) =>
@@ -123,7 +124,8 @@ export function Calculator() {
     }
   }
 
-  const totalCost = items.reduce((sum, item) => sum + item.cost, 0);
+  const totalCostBeforeExtras = items.reduce((sum, item) => sum + item.cost, 0);
+  const totalCostAfterExtras = totalCostBeforeExtras + tip + tax;
 
   function calculateAmountsOwed(items: Array<Item>, people: Array<Person>) {
     let amounts: Record<number, number> = {};
@@ -139,17 +141,22 @@ export function Calculator() {
       }
     });
 
+    // could possibly move this to somewhere earlier
+    if (totalCostBeforeExtras === 0) {
+      return amounts;
+    }
+
+    Object.keys(amounts).forEach((personId) => {
+      const personTotal = amounts[Number(personId)];
+      const personTip = (personTotal / totalCostBeforeExtras) * tip;
+      const personTax = (personTotal / totalCostBeforeExtras) * tax;
+      amounts[Number(personId)] += personTip + personTax;
+    });
+
     return amounts;
   }
 
   const amountsOwed = calculateAmountsOwed(items, people);
-  console.log(amountsOwed);
-
-  function setRefElement(el: HTMLInputElement | null) {
-    if (!el) return;
-    inputRef.current = el;
-    console.log("set ref!");
-  }
 
   return (
     <div>
@@ -161,7 +168,7 @@ export function Calculator() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-y-2">
-            <Button className="w-fit" onClick={addPerson}>
+            <Button className="w-fit bg-blue-500" onClick={addPerson}>
               Add a person
             </Button>
             {people.map((person, index) => (
@@ -178,25 +185,25 @@ export function Calculator() {
                     type="text"
                     placeholder="Name"
                     value={person.name}
+                    key={person.id}
                     onChange={(e) =>
                       handleUpdatePersonName(person.id, e.target.value)
                     }
                     className="p-0 w-36 border-none outline-none shadow-none focus-visible:ring-0 underline"
-                    ref={(ref) => {
-                      index === people.length - 1 && setRefElement(ref);
-                    }}
                   />
                 </div>
                 <div className="w-21 flex justify-between">
                   <div>$</div>
-                  <div>{amountsOwed[person.id].toFixed(2)} </div>
+                  <div className="text-blue-500 font-bold">
+                    {amountsOwed[person.id].toFixed(2)}{" "}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
           <Separator className="my-4" />
           <div className="flex flex-col gap-y-2">
-            <Button className="w-fit" onClick={addItem}>
+            <Button className="w-fit bg-blue-500" onClick={addItem}>
               Add an item
             </Button>
             {items.map((item) => (
@@ -232,9 +239,31 @@ export function Calculator() {
             ))}
           </div>
           <Separator className="my-4" />
+          <div className="flex flex-col gap-y-2">
+            <div className="flex justify-between items-center">
+              <div>Tax</div>
+              <CurrencyInput className="w-24" value={tax} onChange={setTax} />
+            </div>
+          </div>
+          <Separator className="my-4" />
+          <div className="flex flex-col gap-y-2">
+            {/* <Button className="w-fit bg-blue-500">Add tip</Button> */}
+            <div className="flex justify-between items-center">
+              <div>Tip</div>
+              <CurrencyInput className="w-24" value={tip} onChange={setTip} />
+            </div>
+          </div>
+          <Separator className="my-4" />
           <div>
             <p className="text-right">
-              <b>Total: </b>${totalCost.toFixed(2)}
+              <b>Subtotal: </b>${totalCostBeforeExtras.toFixed(2)}
+            </p>
+            <p className="text-right">
+              <b>Tip: </b>${tip.toFixed(2)}
+            </p>
+            <br />
+            <p className="text-right">
+              <b>Total: </b>${totalCostAfterExtras.toFixed(2)}
             </p>
           </div>
         </CardContent>
