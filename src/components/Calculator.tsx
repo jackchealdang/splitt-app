@@ -25,40 +25,43 @@ interface Person {
   name: string;
 }
 
-let personId = 0;
-let itemId = 0;
+let currentPersonId = 0;
+let currentItemId = 0;
 
 function getNextPersonId() {
-  personId = personId + 1;
-  return personId;
+  currentPersonId = currentPersonId + 1;
+  return currentPersonId;
 }
 
 function getNextItemId() {
-  personId = personId + 1;
-  return personId;
+  currentItemId = currentItemId + 1;
+  return currentItemId;
 }
 
+const initPeople: Array<Person> = [
+  {
+    id: getNextPersonId(),
+    name: "Miso",
+  },
+  {
+    id: getNextPersonId(),
+    name: "Maru",
+  },
+];
+
+const initItems: Array<Item> = [
+  {
+    id: getNextItemId(),
+    name: "Matcha Latte (Large)",
+    cost: 10.0,
+    people: [],
+  },
+];
+
 export function Calculator() {
-  const [people, setPeople] = useState<Array<Person>>([
-    {
-      id: getNextPersonId(),
-      name: "Miso",
-    },
-    {
-      id: getNextPersonId(),
-      name: "Maru",
-    },
-  ]);
-  const [items, setItems] = useState<Array<Item>>([
-    {
-      id: getNextItemId(),
-      name: "Cat food",
-      cost: 20.0,
-      people: [],
-    },
-  ]);
-  const [tip, setTip] = useState<number>(0);
-  const [tax, setTax] = useState<number>(0);
+  const [people, setPeople] = useState<Array<Person>>(initPeople);
+  const [items, setItems] = useState<Array<Item>>(initItems);
+  const [tip, setTip] = useState<number>(1.0);
 
   function handleUpdatePersonName(id: number, newName: string) {
     const updatedPeople = people.map((person) =>
@@ -92,7 +95,7 @@ export function Calculator() {
   function addPerson() {
     const newPerson: Person = {
       id: getNextPersonId(),
-      name: "New person",
+      name: `Person #${currentPersonId}`,
     };
     setPeople((prevPeople) => [...prevPeople, newPerson]);
   }
@@ -101,10 +104,14 @@ export function Calculator() {
     setPeople(people.filter((person) => person.id !== id));
   }
 
+  function removeItem(id: number) {
+    setItems(items.filter((item) => item.id !== id));
+  }
+
   function addItem() {
     const newItem: Item = {
       id: getNextItemId(),
-      name: "New Item",
+      name: "New item",
       cost: 0,
       people: [],
     };
@@ -125,6 +132,9 @@ export function Calculator() {
   }
 
   const totalCostBeforeExtras = items.reduce((sum, item) => sum + item.cost, 0);
+  const [tax, setTax] = useState<number>(
+    Math.round(0.0825 * totalCostBeforeExtras * 100) / 100,
+  );
   const totalCostAfterExtras = totalCostBeforeExtras + tip + tax;
 
   function calculateAmountsOwed(items: Array<Item>, people: Array<Person>) {
@@ -189,7 +199,7 @@ export function Calculator() {
                     onChange={(e) =>
                       handleUpdatePersonName(person.id, e.target.value)
                     }
-                    className="p-0 w-36 border-none outline-none shadow-none focus-visible:ring-0 underline"
+                    className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
                   />
                 </div>
                 <div className="w-21 flex justify-between">
@@ -209,7 +219,25 @@ export function Calculator() {
             {items.map((item) => (
               <div>
                 <div className="flex w-full justify-between items-center">
-                  {item.name}
+                  <div className="flex w-min items-center gap-x-1">
+                    <Button
+                      className="cursor-pointer w-6 h-6"
+                      variant="ghost"
+                      onClick={() => removeItem(item.id)}
+                    >
+                      <X />
+                    </Button>
+                    <Input
+                      type="text"
+                      placeholder="Item"
+                      value={item.name}
+                      key={item.id}
+                      onChange={(e) =>
+                        handleUpdateItemName(item.id, e.target.value)
+                      }
+                      className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
+                    />
+                  </div>
                   <div className="flex items-center justify-items-end">
                     <CurrencyInput
                       itemId={item.id}
@@ -223,7 +251,7 @@ export function Calculator() {
                 <div className="flex flex-wrap gap-2">
                   {people.map((person) => (
                     <Button
-                      className="w-fit p-2 cursor-pointer text-xs"
+                      className={`w-fit px-2 cursor-pointer text-xs ${person.name === "" ? "text-gray-400" : ""}`}
                       variant={
                         item.people.includes(person.id) ? "default" : "outline"
                       }
@@ -231,7 +259,7 @@ export function Calculator() {
                         handleUpdatePersonOnItem(item.id, person.id)
                       }
                     >
-                      {person.name}
+                      {person.name ? person.name : "Name"}
                     </Button>
                   ))}
                 </div>
@@ -241,7 +269,7 @@ export function Calculator() {
           <Separator className="my-4" />
           <div className="flex flex-col gap-y-2">
             <div className="flex justify-between items-center">
-              <div>Tax</div>
+              <div>Add Tax</div>
               <CurrencyInput className="w-24" value={tax} onChange={setTax} />
             </div>
           </div>
@@ -249,22 +277,40 @@ export function Calculator() {
           <div className="flex flex-col gap-y-2">
             {/* <Button className="w-fit bg-blue-500">Add tip</Button> */}
             <div className="flex justify-between items-center">
-              <div>Tip</div>
+              <div>Add Tip</div>
               <CurrencyInput className="w-24" value={tip} onChange={setTip} />
             </div>
           </div>
           <Separator className="my-4" />
-          <div>
-            <p className="text-right">
-              <b>Subtotal: </b>${totalCostBeforeExtras.toFixed(2)}
-            </p>
-            <p className="text-right">
-              <b>Tip: </b>${tip.toFixed(2)}
-            </p>
-            <br />
-            <p className="text-right">
-              <b>Total: </b>${totalCostAfterExtras.toFixed(2)}
-            </p>
+          <div className="flex flex-col">
+            <div className="flex justify-between">
+              <p>Subtotal</p>
+              <div className="w-21 flex justify-between">
+                <div>$</div>
+                <p>{totalCostBeforeExtras.toFixed(2)}</p>
+              </div>
+            </div>
+            <div className="flex justify-between">
+              <p>Tax</p>
+              <div className="w-21 flex justify-between">
+                <div>$</div>
+                <p>{tax.toFixed(2)}</p>
+              </div>
+            </div>
+            <div className="flex justify-between">
+              <p>Tip</p>
+              <div className="w-21 flex justify-between">
+                <div>$</div>
+                <p>{tip.toFixed(2)}</p>
+              </div>
+            </div>
+            <div className="flex justify-between">
+              <p>Total</p>
+              <div className="w-21 flex justify-between">
+                <div>$</div>
+                <p>{totalCostAfterExtras.toFixed(2)}</p>
+              </div>
+            </div>
           </div>
         </CardContent>
         <CardFooter></CardFooter>
