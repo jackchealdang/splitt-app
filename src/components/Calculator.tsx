@@ -83,6 +83,19 @@ export function Calculator() {
         },
       },
     );
+    let newItems: Array<Item> = [];
+    data.data.items.forEach((item: any) => {
+      const newItem: Item = {
+        id: getNextItemId(),
+        name: item.name,
+        cost: item.price,
+        people: [],
+      };
+      newItems.push(newItem);
+    });
+    setItems(newItems);
+    setTax(data.data.tax);
+    setTip(data.data.tip);
     console.log(data);
   }
 

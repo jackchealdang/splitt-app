@@ -148,7 +148,7 @@ async def process_receipt(file: UploadFile = File(...)):
                             quantityField = item.value_object.get("Quantity")
                             priceField = item.value_object.get("TotalPrice")
                             currItem = {
-                                "desc": getattr(descriptionField, "value_string", None)
+                                "name": getattr(descriptionField, "value_string", None)
                                 if descriptionField
                                 else None,
                                 "qty": getattr(quantityField, "value_number", None)
