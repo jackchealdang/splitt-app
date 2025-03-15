@@ -8,10 +8,11 @@ import {
 } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { useState } from "react";
+import { useState, type ChangeEventHandler } from "react";
 import { Separator } from "./ui/separator";
 import CurrencyInput from "@/components/ui/currency-input";
-import { X } from "lucide-react";
+import { X, Camera, Upload } from "lucide-react";
+import { default as axios } from "axios";
 
 interface Item {
   id: number;
@@ -62,6 +63,28 @@ export function Calculator() {
   const [people, setPeople] = useState<Array<Person>>(initPeople);
   const [items, setItems] = useState<Array<Item>>(initItems);
   const [tip, setTip] = useState<number>(1.0);
+  const [file, setFile] = useState<File | null>(null);
+
+  async function uploadFile() {
+    if (!file) {
+      console.log("no file");
+      return;
+    }
+    console.log("file present");
+    const { data } = await axios.post(
+      "http://127.0.0.1:8000/process-receipt",
+      {
+        file: file,
+      },
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          "Access-Control-Allow-Origin": "*",
+        },
+      },
+    );
+    console.log(data);
+  }
 
   function handleUpdatePersonName(id: number, newName: string) {
     const updatedPeople = people.map((person) =>
@@ -128,6 +151,13 @@ export function Calculator() {
           item.id === itemId ? { ...item, cost: newCost } : item,
         ),
       );
+    }
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+      console.log(e.target.files[0].name);
     }
   }
 
@@ -311,6 +341,13 @@ export function Calculator() {
                 <p>{totalCostAfterExtras.toFixed(2)}</p>
               </div>
             </div>
+          </div>
+          <Separator className="my-4" />
+          <div className="flex">
+            <Input type="file" onChange={handleFileChange} />
+            <Button onClick={() => uploadFile()}>
+              <Upload />
+            </Button>
           </div>
         </CardContent>
         <CardFooter></CardFooter>
