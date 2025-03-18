@@ -72,7 +72,8 @@ export function Calculator() {
     }
     console.log("file present");
     const { data } = await axios.post(
-      "http://127.0.0.1:8000/process-receipt",
+      // "http://127.0.0.1:8000/process-receipt",
+      "https://splitt-backend.onrender.com/process-receipt",
       {
         file: file,
       },
