@@ -17,15 +17,15 @@ permissions:
 jobs:
   build:
     environment: github-pages
-    env:
-      PUBLIC_PRESIGNED_ENDPOINT: ${{ secrets.PUBLIC_PRESIGNED_ENDPOINT }}
-      PUBLIC_PROCESS_ENDPOINT: ${{ secrets.PUBLIC_PROCESS_ENDPOINT }}
-      PUBLIC_X_API_KEY: ${{ secrets.PUBLIC_X_API_KEY }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v4
       - name: Install, build, and upload your site
+        env:
+          PUBLIC_PRESIGNED_ENDPOINT: ${{ secrets.PUBLIC_PRESIGNED_ENDPOINT }}
+          PUBLIC_PROCESS_ENDPOINT: ${{ secrets.PUBLIC_PROCESS_ENDPOINT }}
+          PUBLIC_X_API_KEY: ${{ secrets.PUBLIC_X_API_KEY }}
         uses: withastro/action@v3
         # with:
         # path: . # The root location of your Astro project inside the repository. (optional)
