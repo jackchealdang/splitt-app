@@ -16,6 +16,7 @@ permissions:
 
 jobs:
   build:
+    # Specify the environment to use secrets from!
     environment: github-pages
     env:
       PUBLIC_PRESIGNED_ENDPOINT: ${{ secrets.PUBLIC_PRESIGNED_ENDPOINT }}

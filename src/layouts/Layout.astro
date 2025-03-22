@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css"
+import { Toaster } from "sonner";
 ---
 
 <!doctype html>
@@ -11,8 +12,9 @@ import "../styles/global.css"
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro Basics</title>
 	</head>
-	<body class="flex flex-col w-full h-full items-center top-0 absolute sm:top-16">
+	<body class="flex flex-col w-full h-full items-center top-1 absolute sm:top-16">
 		<slot />
+    <Toaster client:load>
 	</body>
 </html>
 

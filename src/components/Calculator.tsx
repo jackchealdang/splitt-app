@@ -11,6 +11,7 @@ import { useState } from "react";
 import { Separator } from "./ui/separator";
 import CurrencyInput from "@/components/ui/currency-input";
 import { X, Upload } from "lucide-react";
+import { toast } from "sonner";
 
 interface Item {
   id: number;
@@ -114,21 +115,32 @@ export function Calculator() {
   };
 
   const handleReceiptUpload = async () => {
-    const fileKey = await uploadToS3();
-    const extractedData = await processReceipt(fileKey);
-    let newItems: Array<Item> = [];
-    extractedData.items.forEach((item: any) => {
-      const newItem: Item = {
-        id: getNextItemId(),
-        name: item.name,
-        cost: item.price,
-        people: [],
-      };
-      newItems.push(newItem);
-    });
-    setItems(newItems);
-    setTax(extractedData.tax);
-    setTip(extractedData.tip);
+    toast.promise(
+      (async () => {
+        const fileKey = await uploadToS3();
+        const extractedData = await processReceipt(fileKey);
+        let newItems: Array<Item> = [];
+        extractedData.items.forEach((item: any) => {
+          const newItem: Item = {
+            id: getNextItemId(),
+            name: item.name,
+            cost: item.price,
+            people: [],
+          };
+          newItems.push(newItem);
+        });
+        setItems(newItems);
+        setTax(extractedData.tax);
+        setTip(extractedData.tip);
+      })(),
+      {
+        loading: "Processing receipt...",
+        success: "Receipt processed successfully!",
+        error: "Failed to process receipt. Please try again.",
+        duration: 3000,
+        position: "bottom-center",
+      },
+    );
   };
 
   function handleUpdatePersonName(id: number, newName: string) {
