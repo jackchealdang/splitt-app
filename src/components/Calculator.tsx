@@ -80,6 +80,7 @@ export function Calculator() {
       console.log("No file");
       return;
     }
+    console.log(import.meta.env.PUBLIC_PROCESS_ENDPOINT);
     const { presigned_url, file_key } = await getPresignedUrl();
 
     await fetch(presigned_url, {
