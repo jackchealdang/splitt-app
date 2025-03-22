@@ -100,7 +100,7 @@ export function Calculator() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Api-Key": import.meta.env.X_API_KEY,
+          "X-Api-Key": import.meta.env.PUBLIC_X_API_KEY,
         },
         body: JSON.stringify({
           bucket_name: "splitt-receipts",
