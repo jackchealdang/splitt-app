@@ -17,17 +17,14 @@ permissions:
 jobs:
   build:
     environment: github-pages
+    env:
+      PUBLIC_PRESIGNED_ENDPOINT: ${{ secrets.PUBLIC_PRESIGNED_ENDPOINT }}
+      PUBLIC_PROCESS_ENDPOINT: ${{ secrets.PUBLIC_PROCESS_ENDPOINT }}
+      PUBLIC_X_API_KEY: ${{ secrets.PUBLIC_X_API_KEY }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v4
-      - name: Inject environment variables
-        run: |
-          echo "PUBLIC_PRESIGNED_ENDPOINT = ${{ secrets.PUBLIC_PRESIGNED_ENDPOINT }}" > .env
-          echo "PUBLIC_PROCESS_ENDPOINT = ${{ secrets.PUBLIC_PROCESS_ENDPOINT }}" > .env
-          echo "PUBLIC_X_API_KEY = ${{ secrets.PUBLIC_X_API_KEY }}" > .env
-          echo endpoint = ${{ secrets.PUBLIC_PRESIGNED_ENDPOINT }}
-          cat .env
       - name: Install, build, and upload your site
         uses: withastro/action@v3
         # with:
