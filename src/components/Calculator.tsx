@@ -1,18 +1,16 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { useState, type ChangeEventHandler } from "react";
+import { useState } from "react";
 import { Separator } from "./ui/separator";
 import CurrencyInput from "@/components/ui/currency-input";
-import { X, Camera, Upload } from "lucide-react";
-import { default as axios } from "axios";
+import { X, Upload } from "lucide-react";
 
 interface Item {
   id: number;
@@ -65,27 +63,61 @@ export function Calculator() {
   const [tip, setTip] = useState<number>(1.0);
   const [file, setFile] = useState<File | null>(null);
 
-  async function uploadFile() {
-    if (!file) {
-      console.log("no file");
-      return;
-    }
-    console.log("file present");
-    const { data } = await axios.post(
-      // "http://127.0.0.1:8000/process-receipt",
-      "https://splitt-backend.onrender.com/process-receipt",
+  async function getPresignedUrl() {
+    const response = await fetch(
+      `${import.meta.env.PUBLIC_PRESIGNED_ENDPOINT}/generate-presigned-url`,
       {
-        file: file,
-      },
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "Access-Control-Allow-Origin": "*",
-        },
+        method: "POST",
       },
     );
+    const data = await response.json();
+    return data;
+  }
+
+  async function uploadToS3() {
+    if (!file) {
+      console.log("No file");
+      return;
+    }
+    const { presigned_url, file_key } = await getPresignedUrl();
+
+    await fetch(presigned_url, {
+      method: "PUT",
+      body: file,
+      headers: { "Content-Type": file.type },
+    });
+
+    return file_key;
+  }
+
+  const processReceipt = async (fileKey: string | void) => {
+    if (!fileKey) {
+      return;
+    }
+    const response = await fetch(
+      `${import.meta.env.PUBLIC_PROCESS_ENDPOINT}/deploy`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Api-Key": import.meta.env.X_API_KEY,
+        },
+        body: JSON.stringify({
+          bucket_name: "splitt-receipts",
+          file_key: fileKey,
+        }),
+      },
+    );
+
+    const data = await response.json();
+    return data;
+  };
+
+  const handleReceiptUpload = async () => {
+    const fileKey = await uploadToS3();
+    const extractedData = await processReceipt(fileKey);
     let newItems: Array<Item> = [];
-    data.data.items.forEach((item: any) => {
+    extractedData.items.forEach((item: any) => {
       const newItem: Item = {
         id: getNextItemId(),
         name: item.name,
@@ -95,10 +127,9 @@ export function Calculator() {
       newItems.push(newItem);
     });
     setItems(newItems);
-    setTax(data.data.tax);
-    setTip(data.data.tip);
-    console.log(data);
-  }
+    setTax(extractedData.tax);
+    setTip(extractedData.tip);
+  };
 
   function handleUpdatePersonName(id: number, newName: string) {
     const updatedPeople = people.map((person) =>
@@ -171,7 +202,6 @@ export function Calculator() {
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files) {
       setFile(e.target.files[0]);
-      console.log(e.target.files[0].name);
     }
   }
 
@@ -359,7 +389,7 @@ export function Calculator() {
           <Separator className="my-4" />
           <div className="flex">
             <Input type="file" onChange={handleFileChange} />
-            <Button onClick={() => uploadFile()}>
+            <Button onClick={() => handleReceiptUpload()}>
               <Upload />
             </Button>
           </div>
