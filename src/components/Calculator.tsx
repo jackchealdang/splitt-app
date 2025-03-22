@@ -64,10 +64,10 @@ export function Calculator() {
   const [file, setFile] = useState<File | null>(null);
 
   async function getPresignedUrl() {
-    console.log(import.meta.env.PUBLIC_PRESIGNED_ENDPOINT);
+    console.log(import.meta.env.VITE_PRESIGNED_ENDPOINT);
     console.log("test");
     const response = await fetch(
-      `${import.meta.env.PUBLIC_PRESIGNED_ENDPOINT}/generate-presigned-url`,
+      `${import.meta.env.VITE_PRESIGNED_ENDPOINT}/generate-presigned-url`,
       {
         method: "POST",
       },
@@ -81,7 +81,7 @@ export function Calculator() {
       console.log("No file");
       return;
     }
-    console.log(import.meta.env.PUBLIC_PROCESS_ENDPOINT);
+    console.log(import.meta.env.VITE_PROCESS_ENDPOINT);
     const { presigned_url, file_key } = await getPresignedUrl();
 
     await fetch(presigned_url, {
@@ -98,12 +98,12 @@ export function Calculator() {
       return;
     }
     const response = await fetch(
-      `${import.meta.env.PUBLIC_PROCESS_ENDPOINT}/deploy`,
+      `${import.meta.env.VITE_PROCESS_ENDPOINT}/deploy`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Api-Key": import.meta.env.PUBLIC_X_API_KEY,
+          "X-Api-Key": import.meta.env.VITE_X_API_KEY,
         },
         body: JSON.stringify({
           bucket_name: "splitt-receipts",
