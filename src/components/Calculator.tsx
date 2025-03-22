@@ -65,6 +65,7 @@ export function Calculator() {
 
   async function getPresignedUrl() {
     console.log(import.meta.env.PUBLIC_PRESIGNED_ENDPOINT);
+    console.log("test");
     const response = await fetch(
       `${import.meta.env.PUBLIC_PRESIGNED_ENDPOINT}/generate-presigned-url`,
       {
