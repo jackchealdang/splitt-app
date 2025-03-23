@@ -1,16 +1,10 @@
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Separator } from "./ui/separator";
 import CurrencyInput from "@/components/ui/currency-input";
-import { X, Upload } from "lucide-react";
+import { X, Upload, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 
 interface Item {
@@ -39,10 +33,10 @@ function getNextItemId() {
 }
 
 const initPeople: Array<Person> = [
-  {
-    id: getNextPersonId(),
-    name: "Miso",
-  },
+  // {
+  //   id: getNextPersonId(),
+  //   name: "Miso",
+  // },
   {
     id: getNextPersonId(),
     name: "Maru",
@@ -50,11 +44,17 @@ const initPeople: Array<Person> = [
 ];
 
 const initItems: Array<Item> = [
+  // {
+  //   id: getNextItemId(),
+  //   name: "Matcha Latte (Large)",
+  //   cost: 10.0,
+  //   people: [1],
+  // },
   {
     id: getNextItemId(),
-    name: "Matcha Latte (Large)",
+    name: "Yogurt Soju",
     cost: 10.0,
-    people: [],
+    people: [1],
   },
 ];
 
@@ -63,6 +63,7 @@ export function Calculator() {
   const [items, setItems] = useState<Array<Item>>(initItems);
   const [tip, setTip] = useState<number>(1.0);
   const [file, setFile] = useState<File | null>(null);
+  const fileInputRef = useRef(null);
 
   async function getPresignedUrl() {
     const response = await fetch(
@@ -115,6 +116,12 @@ export function Calculator() {
   };
 
   const handleReceiptUpload = async () => {
+    if (!file) {
+      toast.error("Please select a receipt to upload.", {
+        position: "bottom-center",
+      });
+      return;
+    }
     toast.promise(
       (async () => {
         const fileKey = await uploadToS3();
@@ -132,6 +139,10 @@ export function Calculator() {
         setItems(newItems);
         setTax(extractedData.tax);
         setTip(extractedData.tip);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = null;
+        }
+        setFile(null);
       })(),
       {
         loading: "Processing receipt...",
@@ -217,6 +228,17 @@ export function Calculator() {
     }
   }
 
+  function clearReceipt() {
+    setItems([]);
+    setPeople([]);
+    setTax(0);
+    setTip(0);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = null;
+    }
+    setFile(null);
+  }
+
   const totalCostBeforeExtras = items.reduce((sum, item) => sum + item.cost, 0);
   const [tax, setTax] = useState<number>(
     Math.round(0.0825 * totalCostBeforeExtras * 100) / 100,
@@ -259,7 +281,12 @@ export function Calculator() {
       <Card className="hover:shadow-md w-[24rem] h-min-[32rem] transition-all ease-in duration-100">
         <CardHeader>
           <CardTitle>
-            <p className="text-lg">Splitt</p>
+            <div className="flex justify-between items-center">
+              <p className="text-lg">Splitt</p>
+              <Button className="bg-red-600" onClick={clearReceipt}>
+                Clear
+              </Button>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -286,6 +313,12 @@ export function Calculator() {
                       handleUpdatePersonName(person.id, e.target.value)
                     }
                     className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
+                    onFocus={(e) =>
+                      e.currentTarget.setSelectionRange(
+                        e.currentTarget.value.length,
+                        e.currentTarget.value.length,
+                      )
+                    }
                   />
                 </div>
                 <div className="w-21 flex justify-between">
@@ -322,6 +355,12 @@ export function Calculator() {
                         handleUpdateItemName(item.id, e.target.value)
                       }
                       className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
+                      onFocus={(e) =>
+                        e.currentTarget.setSelectionRange(
+                          e.currentTarget.value.length,
+                          e.currentTarget.value.length,
+                        )
+                      }
                     />
                   </div>
                   <div className="flex items-center justify-items-end">
@@ -399,14 +438,20 @@ export function Calculator() {
             </div>
           </div>
           <Separator className="my-4" />
-          <div className="flex">
-            <Input type="file" onChange={handleFileChange} />
-            <Button onClick={() => handleReceiptUpload()}>
-              <Upload />
-            </Button>
+          <div className="flex flex-col gap-y-2">
+            <p className="font-bold">Upload receipt</p>
+            <div className="flex gap-x-4">
+              <Input
+                type="file"
+                onChange={handleFileChange}
+                ref={fileInputRef}
+              />
+              <Button onClick={() => handleReceiptUpload()}>
+                <Upload />
+              </Button>
+            </div>
           </div>
         </CardContent>
-        <CardFooter></CardFooter>
       </Card>
     </div>
   );
