@@ -14,4 +14,3 @@ export default defineConfig({
   site: "https://jackchealdang.github.io",
   base: "splitt-app",
 });
-
