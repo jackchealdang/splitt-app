@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Separator } from "./ui/separator";
 import CurrencyInput from "@/components/ui/currency-input";
-import { X, Upload, RotateCcw } from "lucide-react";
+import { X, Upload, RotateCcw, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
 
 interface Item {
@@ -37,10 +37,10 @@ const initPeople: Array<Person> = [
   //   id: getNextPersonId(),
   //   name: "Miso",
   // },
-  {
-    id: getNextPersonId(),
-    name: "Maru",
-  },
+  // {
+  //   id: getNextPersonId(),
+  //   name: "Maru",
+  // },
 ];
 
 const initItems: Array<Item> = [
@@ -50,20 +50,22 @@ const initItems: Array<Item> = [
   //   cost: 10.0,
   //   people: [1],
   // },
-  {
-    id: getNextItemId(),
-    name: "Yogurt Soju",
-    cost: 10.0,
-    people: [1],
-  },
+  // {
+  //   id: getNextItemId(),
+  //   name: "Yogurt Soju",
+  //   cost: 10.0,
+  //   people: [1],
+  // },
 ];
 
 export function Calculator() {
   const [people, setPeople] = useState<Array<Person>>(initPeople);
   const [items, setItems] = useState<Array<Item>>(initItems);
-  const [tip, setTip] = useState<number>(1.0);
+  const [tip, setTip] = useState<number>(0);
+  const [tipPercentage, setTipPercentage] = useState<number>(20);
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef(null);
+  let totalCostBeforeExtras = 0;
 
   async function getPresignedUrl() {
     const response = await fetch(
@@ -139,6 +141,7 @@ export function Calculator() {
         setItems(newItems);
         setTax(extractedData.tax);
         setTip(extractedData.tip);
+        // adjustFlatTip(extractedData.tip);
         if (fileInputRef.current) {
           fileInputRef.current.value = null;
         }
@@ -186,7 +189,7 @@ export function Calculator() {
   function addPerson() {
     const newPerson: Person = {
       id: getNextPersonId(),
-      name: `Person #${currentPersonId}`,
+      name: `Person #${people.length + 1}`,
     };
     setPeople((prevPeople) => [...prevPeople, newPerson]);
   }
@@ -239,10 +242,32 @@ export function Calculator() {
     setFile(null);
   }
 
-  const totalCostBeforeExtras = items.reduce((sum, item) => sum + item.cost, 0);
+  function adjustTipPercentage(amt: number) {
+    const newTipPercentage = Math.trunc(tipPercentage) + amt;
+    if (newTipPercentage < 0) {
+      return;
+    }
+    setTipPercentage(newTipPercentage);
+    setTip((newTipPercentage / 100) * totalCostBeforeExtras);
+  }
+
+  function adjustFlatTip(amt: number) {
+    if (amt === undefined) {
+      return;
+    }
+    setTip(amt);
+    if (totalCostBeforeExtras > 0) {
+      setTipPercentage((amt / totalCostBeforeExtras) * 100);
+    }
+  }
+
+  totalCostBeforeExtras = items.reduce((sum, item) => sum + item.cost, 0);
   const [tax, setTax] = useState<number>(
     Math.round(0.0825 * totalCostBeforeExtras * 100) / 100,
   );
+  useEffect(() => {
+    setTip((totalCostBeforeExtras * tipPercentage) / 100);
+  }, [tipPercentage, totalCostBeforeExtras]);
   const totalCostAfterExtras = totalCostBeforeExtras + tip + tax;
 
   function calculateAmountsOwed(items: Array<Item>, people: Array<Person>) {
@@ -403,7 +428,20 @@ export function Calculator() {
             {/* <Button className="w-fit bg-blue-500">Add tip</Button> */}
             <div className="flex justify-between items-center">
               <div>Add Tip</div>
-              <CurrencyInput className="w-24" value={tip} onChange={setTip} />
+              <CurrencyInput
+                className="w-24"
+                value={tip}
+                onChange={adjustFlatTip}
+              />
+            </div>
+            <div className="flex items-center gap-x-4">
+              <Button variant="outline" onClick={() => adjustTipPercentage(-1)}>
+                <Minus />
+              </Button>
+              {tipPercentage.toFixed(0)}%
+              <Button variant="outline" onClick={() => adjustTipPercentage(1)}>
+                <Plus />
+              </Button>
             </div>
           </div>
           <Separator className="my-4" />
