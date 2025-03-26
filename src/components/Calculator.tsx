@@ -218,6 +218,7 @@ export function Calculator() {
     // Wait for DOM update before focusing on new input
     setTimeout(() => {
       const input = peopleInputRefs.current[newId];
+      input?.click();
       input?.focus();
       input?.select();
       input?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -246,6 +247,7 @@ export function Calculator() {
     // Wait for DOM update before focusing on new input
     setTimeout(() => {
       const input = itemInputRefs.current[newId];
+      input?.click();
       input?.focus();
       input?.select();
       input?.scrollIntoView({ behavior: "smooth", block: "center" });
