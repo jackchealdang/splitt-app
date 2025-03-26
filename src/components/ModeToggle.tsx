@@ -22,16 +22,15 @@ export function ModeToggle() {
     if (!themeColorMeta) {
       return;
     }
-    if (isDarkMode) {
-      themeColorMeta.setAttribute("content", "#0a0a0a"); // Black for dark mode
-    } else {
-      themeColorMeta.setAttribute("content", "#ffffff"); // White for light mode
-    }
+
+    themeColorMeta.setAttribute("content", isDarkMode ? "#0a0a0a" : "#ffffff");
     // Reload manifest and service worker to apply new background color
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         registrations.forEach((reg) => reg.unregister());
-        window.location.reload();
+        setTimeout(() => {
+          window.location.reload();
+        }, 100); // Small delay to prevent conflicts
       });
     }
   }, []);
