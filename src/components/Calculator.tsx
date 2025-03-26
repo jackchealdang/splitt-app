@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Separator } from "./ui/separator";
 import CurrencyInput from "@/components/ui/currency-input";
 import { X, Upload, RotateCcw, Plus, Minus } from "lucide-react";
@@ -111,6 +111,8 @@ export function Calculator() {
         const fileKey = await uploadToS3();
         const extractedData = await processReceipt(fileKey);
         let newItems: Array<Item> = [];
+        setItems([]);
+        setHasMounted(false);
         extractedData.items.forEach((item: any) => {
           const newItem: Item = {
             id: getNextItemId(),
@@ -120,11 +122,10 @@ export function Calculator() {
           };
           newItems.push(newItem);
         });
-        setHasMounted(false);
         setItems(newItems);
         setTax(extractedData.tax);
-        setTip(extractedData.tip);
-        // adjustFlatTip(extractedData.tip);
+        // setTip(extractedData.tip);
+        adjustFlatTip(extractedData.tip);
         if (fileInputRef.current) {
           fileInputRef.current.value = null;
         }
@@ -224,6 +225,7 @@ export function Calculator() {
 
   function clearReceipt() {
     setItems([]);
+    setHasMounted(false);
     setPeople([]);
     setTax(0);
     setTip(0);
@@ -256,6 +258,7 @@ export function Calculator() {
   }
 
   function adjustFlatTip(amt: number) {
+    toast(amt);
     if (amt === undefined) {
       return;
     }
@@ -265,18 +268,34 @@ export function Calculator() {
     }
   }
 
+  // const totalCostBeforeExtras = useMemo(
+  //   () => items.reduce((sum, item) => sum + item.cost, 0),
+  //   [items],
+  // );
   totalCostBeforeExtras = items.reduce((sum, item) => sum + item.cost, 0);
   const [tax, setTax] = useState<number>(
     Math.round(0.0825 * totalCostBeforeExtras * 100) / 100,
   );
   useEffect(() => {
-    setTip((totalCostBeforeExtras * tipPercentage) / 100);
-  }, [tipPercentage, totalCostBeforeExtras]);
+    if (totalCostBeforeExtras <= 0) {
+      setTip(0);
+      return;
+    }
+    const newTip = (totalCostBeforeExtras * tipPercentage) / 100;
+    if (tip !== newTip) {
+      setTip(newTip);
+    }
+  }, [totalCostBeforeExtras, tipPercentage]);
+
   // useEffect(() => {
-  //   if (totalCostBeforeExtras > 0) {
-  //     setTipPercentage((tip / totalCostBeforeExtras) * 100);
+  //   if (totalCostBeforeExtras <= 0) {
+  //     return;
   //   }
-  // }, [tip]);
+  //   const newTipPercentage = (tip / totalCostBeforeExtras) * 100;
+  //   if (tipPercentage !== newTipPercentage) {
+  //     setTipPercentage(newTipPercentage);
+  //   }
+  // }, [totalCostBeforeExtras, tip]);
   const totalCostAfterExtras = totalCostBeforeExtras + tip + tax;
 
   function calculateAmountsOwed(items: Array<Item>, people: Array<Person>) {
