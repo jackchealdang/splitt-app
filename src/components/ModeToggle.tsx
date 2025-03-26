@@ -25,14 +25,14 @@ export function ModeToggle() {
 
     themeColorMeta.setAttribute("content", isDarkMode ? "#0a0a0a" : "#ffffff");
     // Reload manifest and service worker to apply new background color
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        registrations.forEach((reg) => reg.unregister());
-        setTimeout(() => {
-          window.location.reload();
-        }, 100); // Small delay to prevent conflicts
-      });
-    }
+    // if ("serviceWorker" in navigator) {
+    //   navigator.serviceWorker.getRegistrations().then((registrations) => {
+    //     registrations.forEach((reg) => reg.unregister());
+    //     setTimeout(() => {
+    //       window.location.reload();
+    //     }, 100); // Small delay to prevent conflicts
+    //   });
+    // }
   }, []);
 
   React.useEffect(() => {
