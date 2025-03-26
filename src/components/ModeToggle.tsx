@@ -18,6 +18,15 @@ export function ModeToggle() {
   React.useEffect(() => {
     const isDarkMode = document.documentElement.classList.contains("dark");
     setThemeState(isDarkMode ? "dark" : "theme-light");
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+    if (!themeColorMeta) {
+      return;
+    }
+    if (isDarkMode) {
+      themeColorMeta.setAttribute("content", "#000000"); // Black for dark mode
+    } else {
+      themeColorMeta.setAttribute("content", "#ffffff"); // White for light mode
+    }
   }, []);
 
   React.useEffect(() => {
