@@ -23,9 +23,16 @@ export function ModeToggle() {
       return;
     }
     if (isDarkMode) {
-      themeColorMeta.setAttribute("content", "#000000"); // Black for dark mode
+      themeColorMeta.setAttribute("content", "#0a0a0a"); // Black for dark mode
     } else {
       themeColorMeta.setAttribute("content", "#ffffff"); // White for light mode
+    }
+    // Reload manifest and service worker to apply new background color
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((reg) => reg.unregister());
+        window.location.reload();
+      });
     }
   }, []);
 
