@@ -1,6 +1,6 @@
 ---
 import "../styles/global.css"
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/Toaster";
 ---
 
 <!doctype html>
@@ -18,9 +18,9 @@ import { Toaster } from "sonner";
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 		<title>Splitt</title>
 	</head>
-	<body class="flex flex-col w-full h-full items-center top-2 absolute sm:top-8">
+	<body class="flex flex-col w-full h-full items-center absolute sm:top-8">
 		<slot />
-    <Toaster client:load>
+    <Toaster client:only/>
 	</body>
 </html>
 

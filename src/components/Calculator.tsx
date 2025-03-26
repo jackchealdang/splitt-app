@@ -103,6 +103,7 @@ export function Calculator() {
     if (!file) {
       toast.error("Please select a receipt to upload.", {
         position: "bottom-center",
+        duration: 3000,
       });
       return;
     }
@@ -330,7 +331,7 @@ export function Calculator() {
 
   return (
     <div>
-      <Card className="hover:shadow-md w-[24rem] h-min-[32rem] transition-all ease-in duration-100">
+      <Card className="hover:shadow-md w-[24rem] h-min-[32rem] mt-6 mb-14 transition-all ease-in duration-100">
         <CardHeader>
           <CardTitle>
             <div className="flex justify-between items-center">
@@ -473,7 +474,7 @@ export function Calculator() {
           <div className="flex flex-col gap-y-2">
             <div className="flex justify-between items-center">
               <div className="flex gap-x-2 items-center">
-                <div>Add Tax</div>
+                <div className="mr-2">Add Tax</div>
                 <Button
                   className="cursor-pointer"
                   onClick={() => {
