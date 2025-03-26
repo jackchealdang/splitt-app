@@ -7,6 +7,7 @@ import CurrencyInput from "@/components/ui/currency-input";
 import { X, Upload, RotateCcw, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
 import { BlurFade } from "./magicui/blur-fade";
+import { ModeToggle } from "./ModeToggle";
 
 interface Item {
   id: number;
@@ -326,7 +327,10 @@ export function Calculator() {
         <CardHeader>
           <CardTitle>
             <div className="flex justify-between items-center">
-              <p className="text-lg">Splitt</p>
+              <div className="flex gap-x-4 items-center">
+                <p className="text-lg">Splitt</p>
+                <ModeToggle />
+              </div>
               <Button
                 className="bg-red-600 cursor-pointer"
                 onClick={clearReceipt}
