@@ -462,6 +462,7 @@ export function Calculator() {
               <div className="flex gap-x-2 items-center">
                 <div>Add Tax</div>
                 <Button
+                  className="cursor-pointer"
                   onClick={() => {
                     setTax(
                       Math.round(0.0825 * totalCostBeforeExtras * 100) / 100,
@@ -472,6 +473,7 @@ export function Calculator() {
                   <RotateCcw />
                 </Button>
                 <Button
+                  className="cursor-pointer"
                   onClick={() => {
                     setTax(0);
                   }}
@@ -490,6 +492,7 @@ export function Calculator() {
               <div className="flex gap-x-2 items-center">
                 <div className="mr-2">Add Tip</div>
                 <Button
+                  className="cursor-pointer"
                   onClick={() => {
                     setTipPercentage(15);
                   }}
@@ -498,6 +501,7 @@ export function Calculator() {
                   <RotateCcw />
                 </Button>
                 <Button
+                  className="cursor-pointer"
                   onClick={() => {
                     setTipPercentage(0);
                   }}
