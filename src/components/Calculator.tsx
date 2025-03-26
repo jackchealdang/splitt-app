@@ -218,10 +218,12 @@ export function Calculator() {
     // Wait for DOM update before focusing on new input
     setTimeout(() => {
       const input = peopleInputRefs.current[newId];
-      input?.click();
-      input?.focus();
-      input?.select();
-      input?.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (input) {
+        input.click();
+        input.focus();
+        input.select();
+        input.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
     }, 0);
   }
 
@@ -247,10 +249,12 @@ export function Calculator() {
     // Wait for DOM update before focusing on new input
     setTimeout(() => {
       const input = itemInputRefs.current[newId];
-      input?.click();
-      input?.focus();
-      input?.select();
-      input?.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (input) {
+        input.click();
+        input.focus();
+        input.select();
+        input.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
     }, 0);
   }
 
@@ -452,12 +456,10 @@ export function Calculator() {
                         handleUpdatePersonName(person.id, e.target.value)
                       }
                       className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
-                      onFocus={(e) =>
-                        e.currentTarget.setSelectionRange(
-                          e.currentTarget.value.length,
-                          e.currentTarget.value.length,
-                        )
-                      }
+                      onFocus={(e) => {
+                        e.target.click();
+                        e.target.select();
+                      }}
                     />
                   </BlurFade>
                 </div>
@@ -507,12 +509,10 @@ export function Calculator() {
                           handleUpdateItemName(item.id, e.target.value)
                         }
                         className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
-                        onFocus={(e) =>
-                          e.currentTarget.setSelectionRange(
-                            e.currentTarget.value.length,
-                            e.currentTarget.value.length,
-                          )
-                        }
+                        onFocus={(e) => {
+                          e.target.click();
+                          e.target.select();
+                        }}
                       />
                     </BlurFade>
                   </div>
