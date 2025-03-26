@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Separator } from "./ui/separator";
 import CurrencyInput from "@/components/ui/currency-input";
-import { X, Upload, RotateCcw, Plus, Minus } from "lucide-react";
+import { X, Upload, RotateCcw, Plus, Minus, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { BlurFade } from "./magicui/blur-fade";
 import { ModeToggle } from "./ModeToggle";
@@ -35,19 +35,47 @@ function getNextItemId() {
   return currentItemId;
 }
 
-const initPeople: Array<Person> = [];
+const saveToLocalStorage = (key: string, value: any) => {
+  localStorage.setItem(key, JSON.stringify(value));
+};
 
-const initItems: Array<Item> = [];
+const getFromLocalStorage = (key: string) => {
+  const item = localStorage.getItem(key);
+  return item ? JSON.parse(item) : null;
+};
+
+// const initPeople: Array<Person> = [];
+
+// const initItems: Array<Item> = [];
 
 export function Calculator() {
-  const [people, setPeople] = useState<Array<Person>>(initPeople);
-  const [items, setItems] = useState<Array<Item>>(initItems);
+  const [people, setPeople] = useState<Array<Person>>([]);
+  const [items, setItems] = useState<Array<Item>>([]);
   const [tip, setTip] = useState<number>(0);
   const [tipPercentage, setTipPercentage] = useState<number>(15);
   const [file, setFile] = useState<File | null>(null);
   const [hasMounted, setHasMounted] = useState(true);
   const fileInputRef = useRef(null);
+  const itemInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const peopleInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   let totalCostBeforeExtras = 0;
+
+  useEffect(() => {
+    setHasMounted(false);
+    const storedPeople = getFromLocalStorage("people");
+    if (storedPeople) setPeople(storedPeople);
+
+    const storedItems = getFromLocalStorage("items");
+    if (storedItems) setItems(storedItems);
+  }, []);
+
+  useEffect(() => {
+    if (people) saveToLocalStorage("people", people);
+  }, [people]);
+
+  useEffect(() => {
+    if (items) saveToLocalStorage("items", items);
+  }, [items]);
 
   async function getPresignedUrl() {
     const response = await fetch(
@@ -179,11 +207,21 @@ export function Calculator() {
   }
 
   function addPerson() {
+    setHasMounted(true);
+    const newId = getNextPersonId();
     const newPerson: Person = {
-      id: getNextPersonId(),
+      id: newId,
       name: `Person #${people.length + 1}`,
     };
     setPeople((prevPeople) => [...prevPeople, newPerson]);
+
+    // Wait for DOM update before focusing on new input
+    setTimeout(() => {
+      const input = peopleInputRefs.current[newId];
+      input?.focus();
+      input?.select();
+      input?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 0);
   }
 
   function removePerson(id: number) {
@@ -196,13 +234,22 @@ export function Calculator() {
 
   function addItem() {
     setHasMounted(true);
+    const newId = getNextItemId();
     const newItem: Item = {
-      id: getNextItemId(),
+      id: newId,
       name: "New item",
       cost: 0,
       people: [],
     };
     setItems((prevItems) => [...prevItems, newItem]);
+
+    // Wait for DOM update before focusing on new input
+    setTimeout(() => {
+      const input = itemInputRefs.current[newId];
+      input?.focus();
+      input?.select();
+      input?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 0);
   }
 
   function handleUpdateItemCost(
@@ -327,17 +374,41 @@ export function Calculator() {
     return amounts;
   }
 
+  const copyToClipboard = () => {
+    if (people.length === 0) {
+      toast("This is a lonely dinner... (there's no one here)");
+    }
+    let text = "";
+    people.forEach((person) => {
+      text += `${person.name ? person.name : "Unnamed"} owes $${amountsOwed[person.id].toFixed(2)}\n`;
+    });
+    if (text) {
+      text = text.slice(0, -1);
+      navigator.clipboard.writeText(text);
+      toast("Copied to clipboard!", { icon: <Copy className="size-5" /> });
+    }
+  };
+
   const amountsOwed = calculateAmountsOwed(items, people);
 
   return (
     <div>
-      <Card className="hover:shadow-md w-[24rem] h-min-[32rem] mt-6 mb-14 transition-all ease-in duration-100">
+      <Card className="w-[24rem] h-min-[32rem] mt-6 mb-14">
         <CardHeader>
           <CardTitle>
             <div className="flex justify-between items-center">
-              <div className="flex gap-x-4 items-center">
-                <p className="text-lg">Splitt</p>
+              <div className="flex gap-x-2 items-center">
+                <p className="text-lg mr-2">Splitt</p>
                 <ModeToggle />
+                <Button
+                  className="cursor-pointer"
+                  variant="outline"
+                  onClick={() => {
+                    copyToClipboard();
+                  }}
+                >
+                  <Copy />
+                </Button>
               </div>
               <Button
                 className="bg-red-600 cursor-pointer"
@@ -366,12 +437,15 @@ export function Calculator() {
                   >
                     <X />
                   </Button>
-                  <BlurFade duration={0.25}>
+                  <BlurFade duration={0.3} delay={hasMounted ? 0 : idx * 0.075}>
                     <Input
                       type="text"
                       placeholder="Name"
                       value={person.name}
                       key={`${person.id}-${idx}`}
+                      ref={(el) => {
+                        peopleInputRefs.current[person.id] = el;
+                      }}
                       onChange={(e) =>
                         handleUpdatePersonName(person.id, e.target.value)
                       }
@@ -385,7 +459,7 @@ export function Calculator() {
                     />
                   </BlurFade>
                 </div>
-                <BlurFade duration={0.25}>
+                <BlurFade duration={0.3} delay={hasMounted ? 0 : idx * 0.075}>
                   <div className="w-21 flex justify-between">
                     <div>$</div>
                     <div className="text-blue-500 font-bold">
@@ -416,7 +490,7 @@ export function Calculator() {
                       <X />
                     </Button>
                     <BlurFade
-                      duration={0.25}
+                      duration={0.3}
                       delay={hasMounted ? 0 : idx * 0.075}
                     >
                       <Input
@@ -424,6 +498,9 @@ export function Calculator() {
                         placeholder="Item"
                         value={item.name}
                         key={`${item.id}-${idx}`}
+                        ref={(el) => {
+                          itemInputRefs.current[item.id] = el;
+                        }}
                         onChange={(e) =>
                           handleUpdateItemName(item.id, e.target.value)
                         }
@@ -437,10 +514,7 @@ export function Calculator() {
                       />
                     </BlurFade>
                   </div>
-                  <BlurFade
-                    duration={0.25}
-                    delay={hasMounted ? 0 : idx * 0.075}
-                  >
+                  <BlurFade duration={0.3} delay={hasMounted ? 0 : idx * 0.075}>
                     <div className="flex items-center justify-items-end">
                       <CurrencyInput
                         itemId={item.id}
