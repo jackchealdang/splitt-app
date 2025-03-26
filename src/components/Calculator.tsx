@@ -1,11 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Separator } from "./ui/separator";
 import CurrencyInput from "@/components/ui/currency-input";
 import { X, Upload, RotateCcw, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
+import { BlurFade } from "./magicui/blur-fade";
 
 interface Item {
   id: number;
@@ -62,7 +63,7 @@ export function Calculator() {
   const [people, setPeople] = useState<Array<Person>>(initPeople);
   const [items, setItems] = useState<Array<Item>>(initItems);
   const [tip, setTip] = useState<number>(0);
-  const [tipPercentage, setTipPercentage] = useState<number>(20);
+  const [tipPercentage, setTipPercentage] = useState<number>(15);
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef(null);
   let totalCostBeforeExtras = 0;
@@ -236,11 +237,24 @@ export function Calculator() {
     setPeople([]);
     setTax(0);
     setTip(0);
+    setTipPercentage(15);
     if (fileInputRef.current) {
       fileInputRef.current.value = null;
     }
     setFile(null);
   }
+
+  const handleAdjustTipPercentage = useCallback(
+    (amt: number) => {
+      const newTipPercentage = Math.trunc(tipPercentage) + amt;
+      if (newTipPercentage < 0) {
+        return;
+      }
+      setTipPercentage(newTipPercentage);
+      // setTip((newTipPercentage / 100) * totalCostBeforeExtras);
+    },
+    [tipPercentage],
+  );
 
   function adjustTipPercentage(amt: number) {
     const newTipPercentage = Math.trunc(tipPercentage) + amt;
@@ -248,7 +262,7 @@ export function Calculator() {
       return;
     }
     setTipPercentage(newTipPercentage);
-    setTip((newTipPercentage / 100) * totalCostBeforeExtras);
+    // setTip((newTipPercentage / 100) * totalCostBeforeExtras);
   }
 
   function adjustFlatTip(amt: number) {
@@ -268,6 +282,11 @@ export function Calculator() {
   useEffect(() => {
     setTip((totalCostBeforeExtras * tipPercentage) / 100);
   }, [tipPercentage, totalCostBeforeExtras]);
+  // useEffect(() => {
+  //   if (totalCostBeforeExtras > 0) {
+  //     setTipPercentage((tip / totalCostBeforeExtras) * 100);
+  //   }
+  // }, [tip]);
   const totalCostAfterExtras = totalCostBeforeExtras + tip + tax;
 
   function calculateAmountsOwed(items: Array<Item>, people: Array<Person>) {
@@ -308,7 +327,10 @@ export function Calculator() {
           <CardTitle>
             <div className="flex justify-between items-center">
               <p className="text-lg">Splitt</p>
-              <Button className="bg-red-600" onClick={clearReceipt}>
+              <Button
+                className="bg-red-600 cursor-pointer"
+                onClick={clearReceipt}
+              >
                 Clear
               </Button>
             </div>
@@ -316,7 +338,10 @@ export function Calculator() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-y-2">
-            <Button className="w-fit bg-blue-500" onClick={addPerson}>
+            <Button
+              className="w-fit bg-blue-500 cursor-pointer"
+              onClick={addPerson}
+            >
               Add a person
             </Button>
             {people.map((person, index) => (
@@ -329,38 +354,45 @@ export function Calculator() {
                   >
                     <X />
                   </Button>
-                  <Input
-                    type="text"
-                    placeholder="Name"
-                    value={person.name}
-                    key={person.id}
-                    onChange={(e) =>
-                      handleUpdatePersonName(person.id, e.target.value)
-                    }
-                    className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
-                    onFocus={(e) =>
-                      e.currentTarget.setSelectionRange(
-                        e.currentTarget.value.length,
-                        e.currentTarget.value.length,
-                      )
-                    }
-                  />
+                  <BlurFade duration={0.2}>
+                    <Input
+                      type="text"
+                      placeholder="Name"
+                      value={person.name}
+                      key={person.id}
+                      onChange={(e) =>
+                        handleUpdatePersonName(person.id, e.target.value)
+                      }
+                      className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
+                      onFocus={(e) =>
+                        e.currentTarget.setSelectionRange(
+                          e.currentTarget.value.length,
+                          e.currentTarget.value.length,
+                        )
+                      }
+                    />
+                  </BlurFade>
                 </div>
-                <div className="w-21 flex justify-between">
-                  <div>$</div>
-                  <div className="text-blue-500 font-bold">
-                    {amountsOwed[person.id].toFixed(2)}{" "}
+                <BlurFade duration={0.2}>
+                  <div className="w-21 flex justify-between">
+                    <div>$</div>
+                    <div className="text-blue-500 font-bold">
+                      {amountsOwed[person.id].toFixed(2)}{" "}
+                    </div>
                   </div>
-                </div>
+                </BlurFade>
               </div>
             ))}
           </div>
           <Separator className="my-4" />
           <div className="flex flex-col gap-y-2">
-            <Button className="w-fit bg-blue-500" onClick={addItem}>
+            <Button
+              className="w-fit bg-blue-500 cursor-pointer"
+              onClick={addItem}
+            >
               Add an item
             </Button>
-            {items.map((item) => (
+            {items.map((item, idx) => (
               <div>
                 <div className="flex w-full justify-between items-center">
                   <div className="flex w-min items-center gap-x-1">
@@ -371,31 +403,35 @@ export function Calculator() {
                     >
                       <X />
                     </Button>
-                    <Input
-                      type="text"
-                      placeholder="Item"
-                      value={item.name}
-                      key={item.id}
-                      onChange={(e) =>
-                        handleUpdateItemName(item.id, e.target.value)
-                      }
-                      className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
-                      onFocus={(e) =>
-                        e.currentTarget.setSelectionRange(
-                          e.currentTarget.value.length,
-                          e.currentTarget.value.length,
-                        )
-                      }
-                    />
+                    <BlurFade duration={0.2}>
+                      <Input
+                        type="text"
+                        placeholder="Item"
+                        value={item.name}
+                        key={item.id}
+                        onChange={(e) =>
+                          handleUpdateItemName(item.id, e.target.value)
+                        }
+                        className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
+                        onFocus={(e) =>
+                          e.currentTarget.setSelectionRange(
+                            e.currentTarget.value.length,
+                            e.currentTarget.value.length,
+                          )
+                        }
+                      />
+                    </BlurFade>
                   </div>
-                  <div className="flex items-center justify-items-end">
-                    <CurrencyInput
-                      itemId={item.id}
-                      value={item.cost}
-                      onChange={handleUpdateItemCost}
-                      className="w-24"
-                    />
-                  </div>
+                  <BlurFade duration={0.2}>
+                    <div className="flex items-center justify-items-end">
+                      <CurrencyInput
+                        itemId={item.id}
+                        value={item.cost}
+                        onChange={handleUpdateItemCost}
+                        className="w-24"
+                      />
+                    </div>
+                  </BlurFade>
                   {/* <div>${item.cost.toFixed(2)}</div> */}
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -419,7 +455,27 @@ export function Calculator() {
           <Separator className="my-4" />
           <div className="flex flex-col gap-y-2">
             <div className="flex justify-between items-center">
-              <div>Add Tax</div>
+              <div className="flex gap-x-2 items-center">
+                <div>Add Tax</div>
+                <Button
+                  onClick={() => {
+                    setTax(
+                      Math.round(0.0825 * totalCostBeforeExtras * 100) / 100,
+                    );
+                  }}
+                  variant="outline"
+                >
+                  <RotateCcw />
+                </Button>
+                <Button
+                  onClick={() => {
+                    setTax(0);
+                  }}
+                  variant="outline"
+                >
+                  <X />
+                </Button>
+              </div>
               <CurrencyInput className="w-24" value={tax} onChange={setTax} />
             </div>
           </div>
@@ -427,7 +483,25 @@ export function Calculator() {
           <div className="flex flex-col gap-y-2">
             {/* <Button className="w-fit bg-blue-500">Add tip</Button> */}
             <div className="flex justify-between items-center">
-              <div>Add Tip</div>
+              <div className="flex gap-x-2 items-center">
+                <div className="mr-2">Add Tip</div>
+                <Button
+                  onClick={() => {
+                    setTipPercentage(15);
+                  }}
+                  variant="outline"
+                >
+                  <RotateCcw />
+                </Button>
+                <Button
+                  onClick={() => {
+                    setTipPercentage(0);
+                  }}
+                  variant="outline"
+                >
+                  <X />
+                </Button>
+              </div>
               <CurrencyInput
                 className="w-24"
                 value={tip}
@@ -435,11 +509,19 @@ export function Calculator() {
               />
             </div>
             <div className="flex items-center gap-x-4">
-              <Button variant="outline" onClick={() => adjustTipPercentage(-1)}>
+              <Button
+                className="cursor-pointer"
+                variant="outline"
+                onClick={() => handleAdjustTipPercentage(-1)}
+              >
                 <Minus />
               </Button>
               {tipPercentage.toFixed(0)}%
-              <Button variant="outline" onClick={() => adjustTipPercentage(1)}>
+              <Button
+                className="cursor-pointer"
+                variant="outline"
+                onClick={() => handleAdjustTipPercentage(1)}
+              >
                 <Plus />
               </Button>
             </div>
@@ -480,11 +562,15 @@ export function Calculator() {
             <p className="font-bold">Upload receipt</p>
             <div className="flex gap-x-4">
               <Input
+                className="cursor-pointer"
                 type="file"
                 onChange={handleFileChange}
                 ref={fileInputRef}
               />
-              <Button onClick={() => handleReceiptUpload()}>
+              <Button
+                className="cursor-pointer"
+                onClick={() => handleReceiptUpload()}
+              >
                 <Upload />
               </Button>
             </div>
