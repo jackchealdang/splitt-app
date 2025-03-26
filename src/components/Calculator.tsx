@@ -258,7 +258,6 @@ export function Calculator() {
   }
 
   function adjustFlatTip(amt: number) {
-    toast(amt);
     if (amt === undefined) {
       return;
     }
