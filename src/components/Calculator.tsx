@@ -8,6 +8,7 @@ import { X, Upload, RotateCcw, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
 import { BlurFade } from "./magicui/blur-fade";
 import { ModeToggle } from "./ModeToggle";
+import { motion, spring } from "motion/react";
 
 interface Item {
   id: number;
@@ -34,31 +35,9 @@ function getNextItemId() {
   return currentItemId;
 }
 
-const initPeople: Array<Person> = [
-  // {
-  //   id: getNextPersonId(),
-  //   name: "Miso",
-  // },
-  // {
-  //   id: getNextPersonId(),
-  //   name: "Maru",
-  // },
-];
+const initPeople: Array<Person> = [];
 
-const initItems: Array<Item> = [
-  // {
-  //   id: getNextItemId(),
-  //   name: "Matcha Latte (Large)",
-  //   cost: 10.0,
-  //   people: [1],
-  // },
-  // {
-  //   id: getNextItemId(),
-  //   name: "Yogurt Soju",
-  //   cost: 10.0,
-  //   people: [1],
-  // },
-];
+const initItems: Array<Item> = [];
 
 export function Calculator() {
   const [people, setPeople] = useState<Array<Person>>(initPeople);
@@ -66,6 +45,7 @@ export function Calculator() {
   const [tip, setTip] = useState<number>(0);
   const [tipPercentage, setTipPercentage] = useState<number>(15);
   const [file, setFile] = useState<File | null>(null);
+  const [hasMounted, setHasMounted] = useState(true);
   const fileInputRef = useRef(null);
   let totalCostBeforeExtras = 0;
 
@@ -140,6 +120,7 @@ export function Calculator() {
           };
           newItems.push(newItem);
         });
+        setHasMounted(false);
         setItems(newItems);
         setTax(extractedData.tax);
         setTip(extractedData.tip);
@@ -165,6 +146,13 @@ export function Calculator() {
     );
     setPeople(updatedPeople);
   }
+
+  // const handleUpdateItemName = useCallback((id: number, newName: string) => {
+  //   const updatedItems = items.map((item) =>
+  //     item.id === id ? { ...item, name: newName } : item,
+  //   );
+  //   setItems(updatedItems);
+  // }, [items])
 
   function handleUpdateItemName(id: number, newName: string) {
     const updatedItems = items.map((item) =>
@@ -205,6 +193,7 @@ export function Calculator() {
   }
 
   function addItem() {
+    setHasMounted(true);
     const newItem: Item = {
       id: getNextItemId(),
       name: "New item",
@@ -348,7 +337,7 @@ export function Calculator() {
             >
               Add a person
             </Button>
-            {people.map((person, index) => (
+            {people.map((person, idx, index) => (
               <div className="flex justify-between items-center">
                 <div className="flex w-min items-center gap-x-1">
                   <Button
@@ -358,12 +347,12 @@ export function Calculator() {
                   >
                     <X />
                   </Button>
-                  <BlurFade duration={0.2}>
+                  <BlurFade duration={0.25}>
                     <Input
                       type="text"
                       placeholder="Name"
                       value={person.name}
-                      key={person.id}
+                      key={`${person.id}-${idx}`}
                       onChange={(e) =>
                         handleUpdatePersonName(person.id, e.target.value)
                       }
@@ -377,7 +366,7 @@ export function Calculator() {
                     />
                   </BlurFade>
                 </div>
-                <BlurFade duration={0.2}>
+                <BlurFade duration={0.25}>
                   <div className="w-21 flex justify-between">
                     <div>$</div>
                     <div className="text-blue-500 font-bold">
@@ -407,12 +396,15 @@ export function Calculator() {
                     >
                       <X />
                     </Button>
-                    <BlurFade duration={0.2}>
+                    <BlurFade
+                      duration={0.25}
+                      delay={hasMounted ? 0 : idx * 0.075}
+                    >
                       <Input
                         type="text"
                         placeholder="Item"
                         value={item.name}
-                        key={item.id}
+                        key={`${item.id}-${idx}`}
                         onChange={(e) =>
                           handleUpdateItemName(item.id, e.target.value)
                         }
@@ -426,7 +418,10 @@ export function Calculator() {
                       />
                     </BlurFade>
                   </div>
-                  <BlurFade duration={0.2}>
+                  <BlurFade
+                    duration={0.25}
+                    delay={hasMounted ? 0 : idx * 0.075}
+                  >
                     <div className="flex items-center justify-items-end">
                       <CurrencyInput
                         itemId={item.id}
