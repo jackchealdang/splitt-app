@@ -458,10 +458,10 @@ export function Calculator() {
                         handleUpdatePersonName(person.id, e.target.value)
                       }
                       className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
-                      // onFocus={(e) => {
-                      //   e.target.click();
-                      //   e.target.select();
-                      // }}
+                      onFocus={(e) => {
+                        e.target.click();
+                        e.target.select();
+                      }}
                     />
                   </BlurFade>
                 </div>
@@ -511,10 +511,10 @@ export function Calculator() {
                           handleUpdateItemName(item.id, e.target.value)
                         }
                         className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
-                        // onFocus={(e) => {
-                        //   e.target.click();
-                        //   e.target.select();
-                        // }}
+                        onFocus={(e) => {
+                          e.target.click();
+                          e.target.select();
+                        }}
                       />
                     </BlurFade>
                   </div>
