@@ -21,6 +21,7 @@ interface CurrencyInputProps {
   disabled?: boolean;
   required?: boolean;
   name?: string;
+  onKeyDownCapture?: (e: any) => void;
 }
 
 export default function CurrencyInput({
@@ -34,6 +35,7 @@ export default function CurrencyInput({
   disabled = false,
   required = false,
   name = "currency-input",
+  onKeyDownCapture,
 }: CurrencyInputProps) {
   const [displayValue, setDisplayValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -131,6 +133,7 @@ export default function CurrencyInput({
           placeholder={placeholder}
           disabled={disabled}
           required={required}
+          onKeyDownCapture={onKeyDownCapture}
           className={cn(
             "pl-7",
             disabled && "opacity-70 cursor-not-allowed",

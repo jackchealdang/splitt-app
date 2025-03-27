@@ -452,6 +452,15 @@ export function Calculator() {
     });
   };
 
+  const handleKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+    addFunction: Function,
+  ) => {
+    if (event.key === "Enter") {
+      addFunction();
+    }
+  };
+
   const amountsOwed = calculateAmountsOwed(items, people);
 
   return (
@@ -527,6 +536,7 @@ export function Calculator() {
                           e.currentTarget.value.length,
                         );
                       }}
+                      onKeyDownCapture={(e) => handleKeyDown(e, addPerson)}
                     />
                   </BlurFade>
                 </div>
@@ -591,6 +601,7 @@ export function Calculator() {
                             e.currentTarget.value.length,
                           );
                         }}
+                        onKeyDownCapture={(e) => handleKeyDown(e, addItem)}
                       />
                     </BlurFade>
                   </div>
@@ -604,6 +615,7 @@ export function Calculator() {
                         value={item.cost}
                         onChange={handleUpdateItemCost}
                         className="w-24"
+                        onKeyDownCapture={(e) => handleKeyDown(e, addItem)}
                       />
                     </div>
                   </BlurFade>
