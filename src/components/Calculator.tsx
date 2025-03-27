@@ -173,10 +173,7 @@ export function Calculator() {
 
   const handleReceiptUpload = async () => {
     if (!file) {
-      toast.error("Please select a receipt to upload.", {
-        position: "bottom-center",
-        duration: 3000,
-      });
+      toast.error("Please select a receipt to upload.");
       return;
     }
     toast.promise(
@@ -208,8 +205,6 @@ export function Calculator() {
         loading: "Processing receipt...",
         success: "Receipt processed successfully!",
         error: "Failed to process receipt. Please try again.",
-        duration: 3000,
-        position: "bottom-center",
       },
     );
   };
@@ -331,6 +326,7 @@ export function Calculator() {
     setFile(null);
     toast("Receipt cleared!", {
       icon: <Sparkles className="size-5" />,
+      duration: 2000,
     });
   }
 
