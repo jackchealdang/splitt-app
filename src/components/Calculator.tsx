@@ -4,11 +4,19 @@ import { Button } from "./ui/button";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Separator } from "./ui/separator";
 import CurrencyInput from "@/components/ui/currency-input";
-import { X, Upload, RotateCcw, Plus, Minus, Copy } from "lucide-react";
+import {
+  X,
+  Upload,
+  RotateCcw,
+  Plus,
+  Minus,
+  Copy,
+  Sparkles,
+} from "lucide-react";
 import { toast } from "sonner";
 import { BlurFade } from "./magicui/blur-fade";
 import { ModeToggle } from "./ModeToggle";
-import { motion, spring } from "motion/react";
+import { motion } from "motion/react";
 
 interface Item {
   id: number;
@@ -44,10 +52,6 @@ const getFromLocalStorage = (key: string) => {
   return item ? JSON.parse(item) : null;
 };
 
-// const initPeople: Array<Person> = [];
-
-// const initItems: Array<Item> = [];
-
 export function Calculator() {
   const [people, setPeople] = useState<Array<Person>>([]);
   const [items, setItems] = useState<Array<Item>>([]);
@@ -67,6 +71,14 @@ export function Calculator() {
 
     const storedItems = getFromLocalStorage("items");
     if (storedItems) setItems(storedItems);
+
+    const storedTax = getFromLocalStorage("tax");
+    if (storedTax) setTax(storedTax);
+
+    const storedTipPercentage = getFromLocalStorage("tipPercentage");
+    if (storedTipPercentage) {
+      setTipPercentage(storedTipPercentage);
+    }
   }, []);
 
   useEffect(() => {
@@ -76,6 +88,12 @@ export function Calculator() {
   useEffect(() => {
     if (items) saveToLocalStorage("items", items);
   }, [items]);
+
+  useEffect(() => {
+    if (tipPercentage) {
+      saveToLocalStorage("tipPercentage", tipPercentage);
+    }
+  }, [tipPercentage]);
 
   async function getPresignedUrl() {
     const response = await fetch(
@@ -90,7 +108,6 @@ export function Calculator() {
 
   async function uploadToS3() {
     if (!file) {
-      console.log("No file");
       return;
     }
     const { presigned_url, file_key } = await getPresignedUrl();
@@ -222,7 +239,7 @@ export function Calculator() {
         input.scrollIntoView({ behavior: "smooth", block: "center" });
         input.focus();
       }
-    }, 100);
+    }, 0);
   }
 
   function removePerson(id: number) {
@@ -251,7 +268,7 @@ export function Calculator() {
         input.scrollIntoView({ behavior: "smooth", block: "center" });
         input.focus();
       }
-    }, 100);
+    }, 0);
   }
 
   function handleUpdateItemCost(
@@ -284,6 +301,9 @@ export function Calculator() {
       fileInputRef.current.value = null;
     }
     setFile(null);
+    toast("Receipt cleared!", {
+      icon: <Sparkles className="size-5" />,
+    });
   }
 
   const handleAdjustTipPercentage = useCallback(
@@ -325,6 +345,12 @@ export function Calculator() {
   const [tax, setTax] = useState<number>(
     Math.round(0.0825 * totalCostBeforeExtras * 100) / 100,
   );
+  useEffect(() => {
+    if (tax) saveToLocalStorage("tax", tax);
+  }, [tax]);
+  // const [tax, setTax] = useState<number>(
+  //   Math.round(0.0825 * totalCostBeforeExtras * 100) / 100,
+  // );
   useEffect(() => {
     if (totalCostBeforeExtras <= 0) {
       setTip(0);
@@ -403,7 +429,7 @@ export function Calculator() {
                 <p className="text-lg mr-2">Splitt</p>
                 <ModeToggle />
                 <Button
-                  className="cursor-pointer"
+                  className="cursor-pointer aspect-square"
                   variant="outline"
                   onClick={() => {
                     copyToClipboard();
@@ -412,23 +438,23 @@ export function Calculator() {
                   <Copy />
                 </Button>
               </div>
-              <Button
-                className="bg-red-600 cursor-pointer"
-                onClick={clearReceipt}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
               >
-                Clear
-              </Button>
+                <Button
+                  className="bg-red-600 cursor-pointer"
+                  onClick={clearReceipt}
+                >
+                  Clear
+                </Button>
+              </motion.button>
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-y-2">
-            <Button
-              className="w-fit bg-blue-500 cursor-pointer"
-              onClick={addPerson}
-            >
-              Add a person
-            </Button>
+            <p className="font-bold">People</p>
             {people.map((person, idx, index) => (
               <div className="flex justify-between items-center">
                 <div className="flex w-min items-center gap-x-1">
@@ -471,15 +497,24 @@ export function Calculator() {
                 </BlurFade>
               </div>
             ))}
+            <div className="w-fit">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                className="w-fit"
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button
+                  className="bg-blue-500 cursor-pointer"
+                  onClick={addPerson}
+                >
+                  Add a person
+                </Button>
+              </motion.button>
+            </div>
           </div>
           <Separator className="my-4" />
           <div className="flex flex-col gap-y-2">
-            <Button
-              className="w-fit bg-blue-500 cursor-pointer"
-              onClick={addItem}
-            >
-              Add an item
-            </Button>
+            <p className="font-bold">Items</p>
             {items.map((item, idx) => (
               <div>
                 <div className="flex w-full justify-between items-center">
@@ -545,12 +580,25 @@ export function Calculator() {
                 </div>
               </div>
             ))}
+            <div className="w-fit">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button
+                  className="bg-blue-500 cursor-pointer"
+                  onClick={addItem}
+                >
+                  Add an item
+                </Button>
+              </motion.button>
+            </div>
           </div>
           <Separator className="my-4" />
           <div className="flex flex-col gap-y-2">
             <div className="flex justify-between items-center">
               <div className="flex gap-x-2 items-center">
-                <div className="mr-2">Add Tax</div>
+                <div className="mr-2 font-bold">Add Tax</div>
                 <Button
                   className="cursor-pointer"
                   onClick={() => {
@@ -580,7 +628,7 @@ export function Calculator() {
             {/* <Button className="w-fit bg-blue-500">Add tip</Button> */}
             <div className="flex justify-between items-center">
               <div className="flex gap-x-2 items-center">
-                <div className="mr-2">Add Tip</div>
+                <div className="mr-2 font-bold">Add Tip</div>
                 <Button
                   className="cursor-pointer"
                   onClick={() => {
