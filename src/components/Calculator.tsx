@@ -12,6 +12,7 @@ import {
   Minus,
   Copy,
   Sparkles,
+  Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import { BlurFade } from "./magicui/blur-fade";
@@ -29,6 +30,30 @@ interface Person {
   id: number;
   name: string;
 }
+
+const randomNames = [
+  "Dylan G.",
+  "Helly R.",
+  "Irving B.",
+  "Mark S.",
+  "Seth Milchick",
+  "Harmony Cobel",
+  "Helena Eagan",
+  "Jame Eagan",
+  "Judd",
+  "Gemma Scout",
+  "Ricken Hale",
+  "Devon Hale",
+  "Natalie Kalen",
+  "Ms. Casey",
+  "Ms. Huang",
+  "Burt G.",
+  "Felicia",
+  "Lorne",
+  "Mr. Drummond",
+  "Kier Eagen",
+  "Doug Graner",
+];
 
 let currentPersonId = 0;
 let currentItemId = 0;
@@ -59,6 +84,7 @@ export function Calculator() {
   const [tipPercentage, setTipPercentage] = useState<number>(15);
   const [file, setFile] = useState<File | null>(null);
   const [hasMounted, setHasMounted] = useState(true);
+  const [copied, setCopied] = useState<boolean>(false);
   const fileInputRef = useRef(null);
   const itemInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const peopleInputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -226,9 +252,10 @@ export function Calculator() {
   function addPerson() {
     setHasMounted(true);
     const newId = getNextPersonId();
+    const randomNumber = Math.floor(Math.random() * randomNames.length);
     const newPerson: Person = {
       id: newId,
-      name: `Person #${people.length + 1}`,
+      name: randomNames[randomNumber],
     };
     setPeople((prevPeople) => [...prevPeople, newPerson]);
 
@@ -405,6 +432,7 @@ export function Calculator() {
   const copyToClipboard = () => {
     if (people.length === 0) {
       toast("This is a lonely dinner... (there's no one here)");
+      return;
     }
     let text = "";
     people.forEach((person) => {
@@ -413,7 +441,12 @@ export function Calculator() {
     if (text) {
       text = text.slice(0, -1);
       navigator.clipboard.writeText(text);
-      toast("Copied to clipboard!", { icon: <Copy className="size-5" /> });
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast("Copied to clipboard!", {
+        icon: <Copy className="size-5" />,
+        duration: 2000,
+      });
     }
   };
 
@@ -435,12 +468,17 @@ export function Calculator() {
                     copyToClipboard();
                   }}
                 >
-                  <Copy />
+                  <Copy
+                    className={`${copied ? "scale-0" : "scale-100"} transition-all duration-300`}
+                  />
+                  <Check
+                    className={`absolute ${copied ? "scale-100" : "scale-0"} transition-all duration-300`}
+                  />
                 </Button>
               </div>
               <motion.button
                 whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
+                whileTap={{ scale: 0.9 }}
               >
                 <Button
                   className="bg-red-600 cursor-pointer"
@@ -501,7 +539,7 @@ export function Calculator() {
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 className="w-fit"
-                whileTap={{ scale: 0.95 }}
+                whileTap={{ scale: 0.9 }}
               >
                 <Button
                   className="bg-blue-500 cursor-pointer"
@@ -583,7 +621,7 @@ export function Calculator() {
             <div className="w-fit">
               <motion.button
                 whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
+                whileTap={{ scale: 0.9 }}
               >
                 <Button
                   className="bg-blue-500 cursor-pointer"
