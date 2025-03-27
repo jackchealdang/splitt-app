@@ -558,7 +558,8 @@ export function Calculator() {
                     <NumberTicker
                       value={amountsOwed[person.id]}
                       decimalPlaces={2}
-                      className="tracking-tighter"
+                      className="tracking-tighter font-bold text-blue-500 dark:text-blue-500"
+                      startValue={0}
                     />
                   </div>
                 </BlurFade>
