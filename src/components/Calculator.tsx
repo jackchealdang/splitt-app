@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { BlurFade } from "./magicui/blur-fade";
 import { ModeToggle } from "./ModeToggle";
 import { motion } from "motion/react";
+import { NumberTicker } from "./magicui/number-ticker";
 
 interface Item {
   id: number;
@@ -551,9 +552,14 @@ export function Calculator() {
                 <BlurFade duration={0.3} delay={hasMounted ? 0 : idx * 0.0825}>
                   <div className="w-21 flex justify-between">
                     <div>$</div>
-                    <div className="text-blue-500 font-bold">
-                      {amountsOwed[person.id].toFixed(2)}{" "}
-                    </div>
+                    {/* <div className="text-blue-500 font-bold"> */}
+                    {/*   {amountsOwed[person.id].toFixed(2)}{" "} */}
+                    {/* </div> */}
+                    <NumberTicker
+                      value={amountsOwed[person.id]}
+                      decimalPlaces={2}
+                      className="tracking-tighter"
+                    />
                   </div>
                 </BlurFade>
               </div>
