@@ -221,7 +221,6 @@ export function Calculator() {
       if (input) {
         input.scrollIntoView({ behavior: "smooth", block: "center" });
         input.focus();
-        input.select();
       }
     }, 100);
   }
@@ -251,7 +250,6 @@ export function Calculator() {
       if (input) {
         input.scrollIntoView({ behavior: "smooth", block: "center" });
         input.focus();
-        input.select();
       }
     }, 100);
   }
