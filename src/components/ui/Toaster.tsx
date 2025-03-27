@@ -8,6 +8,7 @@ export function Toaster() {
   return (
     <SonnerToaster
       position="bottom-center"
+      swipeDirections={["left", "bottom"]}
       duration={3000}
       theme={isDarkMode ? "dark" : "light"}
     />

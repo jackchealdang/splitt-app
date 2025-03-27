@@ -13,6 +13,7 @@ import {
   Copy,
   Sparkles,
   Check,
+  Frown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { BlurFade } from "./magicui/blur-fade";
@@ -431,7 +432,9 @@ export function Calculator() {
 
   const copyToClipboard = () => {
     if (people.length === 0) {
-      toast("This is a lonely dinner... (there's no one here)");
+      toast("This is a lonely dinner... (there's no one here)", {
+        icon: <Frown className="size-5" />,
+      });
       return;
     }
     let text = "";
