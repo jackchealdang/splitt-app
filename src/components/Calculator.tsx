@@ -454,13 +454,12 @@ export function Calculator() {
                         handleUpdatePersonName(person.id, e.target.value)
                       }
                       className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
-                      onFocus={(e) =>
-                        // e.currentTarget.setSelectionRange(
-                        //   e.currentTarget.value.length,
-                        //   e.currentTarget.value.length,
-                        // );
-                        e.target.select()
-                      }
+                      // onFocus={(e) => {
+                      //   e.currentTarget.setSelectionRange(
+                      //     e.currentTarget.value.length,
+                      //     e.currentTarget.value.length,
+                      //   );
+                      // }}
                     />
                   </BlurFade>
                 </div>
@@ -510,13 +509,12 @@ export function Calculator() {
                           handleUpdateItemName(item.id, e.target.value)
                         }
                         className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
-                        onFocus={(e) =>
-                          // e.currentTarget.setSelectionRange(
-                          //   e.currentTarget.value.length,
-                          //   e.currentTarget.value.length,
-                          // );
-                          e.target.select()
-                        }
+                        // onFocus={(e) => {
+                        //   e.currentTarget.setSelectionRange(
+                        //     e.currentTarget.value.length,
+                        //     e.currentTarget.value.length,
+                        //   );
+                        // }}
                       />
                     </BlurFade>
                   </div>
