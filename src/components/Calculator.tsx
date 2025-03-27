@@ -94,10 +94,16 @@ export function Calculator() {
   useEffect(() => {
     setHasMounted(false);
     const storedPeople = getFromLocalStorage("people");
-    if (storedPeople) setPeople(storedPeople);
+    if (storedPeople) {
+      setPeople(storedPeople);
+      currentPersonId = getFromLocalStorage("currentPersonId");
+    }
 
     const storedItems = getFromLocalStorage("items");
-    if (storedItems) setItems(storedItems);
+    if (storedItems) {
+      setItems(storedItems);
+      currentItemId = getFromLocalStorage("currentItemId");
+    }
 
     const storedTax = getFromLocalStorage("tax");
     if (storedTax) setTax(storedTax);
@@ -109,11 +115,17 @@ export function Calculator() {
   }, []);
 
   useEffect(() => {
-    if (people) saveToLocalStorage("people", people);
+    if (people) {
+      saveToLocalStorage("people", people);
+      saveToLocalStorage("currentPersonId", currentPersonId);
+    }
   }, [people]);
 
   useEffect(() => {
-    if (items) saveToLocalStorage("items", items);
+    if (items) {
+      saveToLocalStorage("items", items);
+      saveToLocalStorage("currentItemId", currentItemId);
+    }
   }, [items]);
 
   useEffect(() => {
