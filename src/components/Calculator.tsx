@@ -431,26 +431,25 @@ export function Calculator() {
   }
 
   const copyToClipboard = () => {
-    if (people.length === 0) {
-      toast("This is a lonely dinner... (there's no one here)", {
-        icon: <Frown className="size-5" />,
-      });
-      return;
-    }
     let text = "";
     people.forEach((person) => {
       text += `${person.name ? person.name : "Unnamed"} owes $${amountsOwed[person.id].toFixed(2)}\n`;
     });
-    if (text) {
-      text = text.slice(0, -1);
-      navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      toast("Copied to clipboard!", {
-        icon: <Copy className="size-5" />,
-        duration: 2000,
-      });
-    }
+    text = text.slice(0, -1);
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    const toastMsg = people.length
+      ? "Copied to clipboard!"
+      : "This is a lonely dinner... (there's no one here)";
+    toast(toastMsg, {
+      icon: people.length ? (
+        <Copy className="size-5" />
+      ) : (
+        <Frown className="size-5" />
+      ),
+      duration: 2000,
+    });
   };
 
   const amountsOwed = calculateAmountsOwed(items, people);
@@ -506,7 +505,10 @@ export function Calculator() {
                   >
                     <X />
                   </Button>
-                  <BlurFade duration={0.3} delay={hasMounted ? 0 : idx * 0.075}>
+                  <BlurFade
+                    duration={0.3}
+                    delay={hasMounted ? 0 : idx * 0.0825}
+                  >
                     <Input
                       type="text"
                       placeholder="Name"
@@ -528,7 +530,7 @@ export function Calculator() {
                     />
                   </BlurFade>
                 </div>
-                <BlurFade duration={0.3} delay={hasMounted ? 0 : idx * 0.075}>
+                <BlurFade duration={0.3} delay={hasMounted ? 0 : idx * 0.0825}>
                   <div className="w-21 flex justify-between">
                     <div>$</div>
                     <div className="text-blue-500 font-bold">
@@ -569,7 +571,7 @@ export function Calculator() {
                     </Button>
                     <BlurFade
                       duration={0.3}
-                      delay={hasMounted ? 0 : idx * 0.075}
+                      delay={hasMounted ? 0 : idx * 0.0825}
                     >
                       <Input
                         type="text"
@@ -592,7 +594,10 @@ export function Calculator() {
                       />
                     </BlurFade>
                   </div>
-                  <BlurFade duration={0.3} delay={hasMounted ? 0 : idx * 0.075}>
+                  <BlurFade
+                    duration={0.3}
+                    delay={hasMounted ? 0 : idx * 0.0825}
+                  >
                     <div className="flex items-center justify-items-end">
                       <CurrencyInput
                         itemId={item.id}
@@ -604,21 +609,28 @@ export function Calculator() {
                   </BlurFade>
                   {/* <div>${item.cost.toFixed(2)}</div> */}
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {people.map((person) => (
-                    <Button
-                      className={`w-fit px-2 cursor-pointer text-xs ${person.name === "" ? "text-gray-400" : ""}`}
-                      variant={
-                        item.people.includes(person.id) ? "default" : "outline"
-                      }
-                      onClick={() =>
-                        handleUpdatePersonOnItem(item.id, person.id)
-                      }
-                    >
-                      {person.name ? person.name : "Name"}
-                    </Button>
-                  ))}
-                </div>
+                <BlurFade
+                  duration={0.3}
+                  delay={hasMounted ? 0 : 0.01 + idx * 0.0825}
+                >
+                  <div className="flex flex-wrap gap-2">
+                    {people.map((person) => (
+                      <Button
+                        className={`w-fit px-2 cursor-pointer text-xs ${person.name === "" ? "text-gray-400" : ""}`}
+                        variant={
+                          item.people.includes(person.id)
+                            ? "default"
+                            : "outline"
+                        }
+                        onClick={() =>
+                          handleUpdatePersonOnItem(item.id, person.id)
+                        }
+                      >
+                        {person.name ? person.name : "Name"}
+                      </Button>
+                    ))}
+                  </div>
+                </BlurFade>
               </div>
             ))}
             <div className="w-fit">
@@ -627,7 +639,7 @@ export function Calculator() {
                 whileTap={{ scale: 0.9 }}
               >
                 <Button
-                  className="bg-blue-500 cursor-pointer"
+                  className={`bg-blue-500 cursor-pointer ${items.length > 0 && people.length > 0 ? "mt-2" : ""}`}
                   onClick={addItem}
                 >
                   Add an item
