@@ -220,10 +220,10 @@ export function Calculator() {
       const input = peopleInputRefs.current[newId];
       if (input) {
         input.blur();
-        // input.click();
+        input.click();
         input.focus();
         input.select();
-        input.scrollIntoView({ behavior: "smooth", block: "end" });
+        input.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }, 100);
   }
@@ -252,7 +252,7 @@ export function Calculator() {
       const input = itemInputRefs.current[newId];
       if (input) {
         input.blur();
-        // input.click();
+        input.click();
         input.focus();
         input.select();
         input.scrollIntoView({ behavior: "smooth", block: "center" });
