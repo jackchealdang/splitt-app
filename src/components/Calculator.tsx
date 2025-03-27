@@ -219,11 +219,10 @@ export function Calculator() {
     setTimeout(() => {
       const input = peopleInputRefs.current[newId];
       if (input) {
-        input.blur();
+        input.scrollIntoView({ behavior: "smooth", block: "center" });
         input.click();
         input.focus();
         input.select();
-        input.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }, 100);
   }
@@ -251,11 +250,10 @@ export function Calculator() {
     setTimeout(() => {
       const input = itemInputRefs.current[newId];
       if (input) {
-        input.blur();
+        input.scrollIntoView({ behavior: "smooth", block: "center" });
         input.click();
         input.focus();
         input.select();
-        input.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     }, 100);
   }
@@ -459,8 +457,10 @@ export function Calculator() {
                       }
                       className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
                       onFocus={(e) => {
-                        e.target.click();
-                        e.target.select();
+                        e.currentTarget.setSelectionRange(
+                          e.currentTarget.value.length,
+                          e.currentTarget.value.length,
+                        );
                       }}
                     />
                   </BlurFade>
@@ -512,8 +512,10 @@ export function Calculator() {
                         }
                         className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
                         onFocus={(e) => {
-                          e.target.click();
-                          e.target.select();
+                          e.currentTarget.setSelectionRange(
+                            e.currentTarget.value.length,
+                            e.currentTarget.value.length,
+                          );
                         }}
                       />
                     </BlurFade>
