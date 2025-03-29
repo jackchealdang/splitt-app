@@ -87,10 +87,10 @@ export function Calculator() {
   const [file, setFile] = useState<File | null>(null);
   const [hasMounted, setHasMounted] = useState(true);
   const [copied, setCopied] = useState<boolean>(false);
+  const [totalCostBeforeExtras, setTotalCostBeforeExtras] = useState(0);
   const fileInputRef = useRef(null);
   const itemInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const peopleInputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  let totalCostBeforeExtras = 0;
 
   useEffect(() => {
     setHasMounted(false);
@@ -100,19 +100,25 @@ export function Calculator() {
       currentPersonId = getFromLocalStorage("currentPersonId");
     }
 
-    const storedItems = getFromLocalStorage("items");
-    if (storedItems) {
-      setItems(storedItems);
-      currentItemId = getFromLocalStorage("currentItemId");
-    }
-
-    const storedTax = getFromLocalStorage("tax");
-    if (storedTax) setTax(storedTax);
-
     const storedTipPercentage = getFromLocalStorage("tipPercentage");
     if (storedTipPercentage) {
       setTipPercentage(storedTipPercentage);
     }
+
+    const storedItems = getFromLocalStorage("items");
+    if (storedItems) {
+      setItems(storedItems);
+      calculateTotalCostBeforeExtras(storedItems);
+      currentItemId = getFromLocalStorage("currentItemId");
+    }
+
+    const storedTip = getFromLocalStorage("tip");
+    if (storedTip) {
+      setTip(storedTip);
+    }
+
+    const storedTax = getFromLocalStorage("tax");
+    if (storedTax) setTax(storedTax);
   }, []);
 
   useEffect(() => {
@@ -131,7 +137,8 @@ export function Calculator() {
 
   useEffect(() => {
     saveToLocalStorage("tipPercentage", tipPercentage);
-  }, [tipPercentage]);
+    saveToLocalStorage("tip", tip);
+  }, [tipPercentage, tip]);
 
   async function getPresignedUrl() {
     const response = await fetch(
@@ -192,7 +199,6 @@ export function Calculator() {
         const fileKey = await uploadToS3();
         const extractedData = await processReceipt(fileKey);
         let newItems: Array<Item> = [];
-        setItems([]);
         setHasMounted(false);
         extractedData.items.forEach((item: any) => {
           const newItem: Item = {
@@ -204,9 +210,11 @@ export function Calculator() {
           newItems.push(newItem);
         });
         setItems(newItems);
+        calculateTotalCostBeforeExtrasTipPercentage(
+          newItems,
+          extractedData.tip,
+        );
         setTax(extractedData.tax);
-        // setTip(extractedData.tip);
-        adjustFlatTip(extractedData.tip ? extractedData.tip : 0);
         if (fileInputRef.current) {
           fileInputRef.current.value = null;
         }
@@ -239,21 +247,22 @@ export function Calculator() {
       item.id === id ? { ...item, name: newName } : item,
     );
     setItems(updatedItems);
+    calculateTotalCostBeforeExtras(updatedItems);
   }
 
   function handleUpdatePersonOnItem(itemId: number, personId: number) {
-    setItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === itemId
-          ? {
-              ...item,
-              people: item.people.includes(personId)
-                ? item.people.filter((id) => id !== personId)
-                : [...item.people, personId],
-            }
-          : item,
-      ),
+    const newItems = items.map((item) =>
+      item.id === itemId
+        ? {
+            ...item,
+            people: item.people.includes(personId)
+              ? item.people.filter((id) => id !== personId)
+              : [...item.people, personId],
+          }
+        : item,
     );
+    setItems(newItems);
+    calculateTotalCostBeforeExtras(newItems);
   }
 
   function addPerson() {
@@ -281,7 +290,9 @@ export function Calculator() {
   }
 
   function removeItem(id: number) {
-    setItems(items.filter((item) => item.id !== id));
+    const newItems = items.filter((item) => item.id !== id);
+    setItems(newItems);
+    calculateTotalCostBeforeExtras(newItems);
   }
 
   function addItem() {
@@ -293,7 +304,9 @@ export function Calculator() {
       cost: 0,
       people: [],
     };
-    setItems((prevItems) => [...prevItems, newItem]);
+    const newItems = [...items, newItem];
+    setItems(newItems);
+    calculateTotalCostBeforeExtras(newItems);
 
     // Wait for DOM update before focusing on new input
     setTimeout(() => {
@@ -310,11 +323,11 @@ export function Calculator() {
     newCost: number,
   ) {
     if (itemId) {
-      setItems(
-        items.map((item) =>
-          item.id === itemId ? { ...item, cost: newCost } : item,
-        ),
+      const newItems = items.map((item) =>
+        item.id === itemId ? { ...item, cost: newCost } : item,
       );
+      setItems(newItems);
+      calculateTotalCostBeforeExtras(newItems);
     }
   }
 
@@ -326,6 +339,7 @@ export function Calculator() {
 
   function clearReceipt() {
     setItems([]);
+    setTotalCostBeforeExtras(0);
     setHasMounted(false);
     setPeople([]);
     setTax(0);
@@ -342,26 +356,18 @@ export function Calculator() {
 
   const handleAdjustTipPercentage = useCallback(
     (amt: number) => {
-      const newTipPercentage = Math.trunc(tipPercentage) + amt;
+      const newTipPercentage = Math.round(Math.trunc(tipPercentage) + amt);
       if (newTipPercentage < 0) {
         return;
       }
-      const newTip = (newTipPercentage / 100) * totalCostBeforeExtras;
-      adjustFlatTip(newTip);
-      // setTipPercentage(newTipPercentage);
-      // setTip((newTipPercentage / 100) * totalCostBeforeExtras);
+      setTipPercentage(newTipPercentage);
+      if (totalCostBeforeExtras > 0) {
+        const newTip = (newTipPercentage / 100) * totalCostBeforeExtras;
+        setTip(newTip);
+      }
     },
-    [tipPercentage],
+    [tip],
   );
-
-  function adjustTipPercentage(amt: number) {
-    const newTipPercentage = Math.trunc(tipPercentage) + amt;
-    if (newTipPercentage < 0) {
-      return;
-    }
-    setTipPercentage(newTipPercentage);
-    // setTip((newTipPercentage / 100) * totalCostBeforeExtras);
-  }
 
   function adjustFlatTip(amt: number) {
     if (amt === undefined) {
@@ -373,27 +379,46 @@ export function Calculator() {
     }
   }
 
-  // const totalCostBeforeExtras = useMemo(
-  //   () => items.reduce((sum, item) => sum + item.cost, 0),
-  //   [items],
-  // );
-  totalCostBeforeExtras = items.reduce((sum, item) => sum + item.cost, 0);
+  function calculateTotalCostBeforeExtras(items: Array<Item>) {
+    const newTotalCost = items.reduce((sum, item) => sum + item.cost, 0);
+    setTotalCostBeforeExtras(newTotalCost);
+    if (newTotalCost <= 0) {
+      setTip(0);
+    } else {
+      const newTip = (totalCostBeforeExtras * tipPercentage) / 100;
+      setTip(newTip);
+    }
+  }
+
+  function calculateTotalCostBeforeExtrasTipPercentage(
+    items: Array<Item>,
+    newTip: number,
+  ) {
+    const newTotalCost = items.reduce((sum, item) => sum + item.cost, 0);
+    setTotalCostBeforeExtras(newTotalCost);
+    if (newTotalCost > 0) {
+      const newTipPercentage = (newTip / newTotalCost) * 100;
+      setTip(newTip);
+      setTipPercentage(newTipPercentage);
+    }
+  }
+
   const [tax, setTax] = useState<number>(
     Math.round(0.0825 * totalCostBeforeExtras * 100) / 100,
   );
   useEffect(() => {
     saveToLocalStorage("tax", tax);
   }, [tax]);
-  useEffect(() => {
-    if (totalCostBeforeExtras <= 0) {
-      setTip(0);
-      return;
-    }
-    const newTip = (totalCostBeforeExtras * tipPercentage) / 100;
-    if (tip !== newTip) {
-      adjustFlatTip(tip);
-    }
-  }, [totalCostBeforeExtras]);
+  // useEffect(() => {
+  //   if (totalCostBeforeExtras <= 0) {
+  //     setTip(0);
+  //     return;
+  //   }
+  //   const newTip = (totalCostBeforeExtras * tipPercentage) / 100;
+  //   if (tip !== newTip) {
+  //     adjustFlatTip(newTip);
+  //   }
+  // }, [totalCostBeforeExtras]);
 
   const totalCostAfterExtras = totalCostBeforeExtras + tip + tax;
 
@@ -699,7 +724,9 @@ export function Calculator() {
                 <Button
                   className="cursor-pointer"
                   onClick={() => {
-                    adjustFlatTip((15 / 100) * totalCostBeforeExtras);
+                    totalCostBeforeExtras <= 0
+                      ? setTipPercentage(15)
+                      : adjustFlatTip((15 / 100) * totalCostBeforeExtras);
                   }}
                   variant="outline"
                 >
