@@ -385,7 +385,7 @@ export function Calculator() {
     if (newTotalCost <= 0) {
       setTip(0);
     } else {
-      const newTip = (totalCostBeforeExtras * tipPercentage) / 100;
+      const newTip = (newTotalCost * tipPercentage) / 100;
       setTip(newTip);
     }
   }
