@@ -83,7 +83,7 @@ export function Calculator() {
   const [people, setPeople] = useState<Array<Person>>([]);
   const [items, setItems] = useState<Array<Item>>([]);
   const [tip, setTip] = useState<number>(0);
-  const [tipPercentage, setTipPercentage] = useState<number>(15);
+  const [tipPercentage, setTipPercentage] = useState<number>(0);
   const [file, setFile] = useState<File | null>(null);
   const [hasMounted, setHasMounted] = useState(true);
   const [copied, setCopied] = useState<boolean>(false);
@@ -130,9 +130,7 @@ export function Calculator() {
   }, [items]);
 
   useEffect(() => {
-    if (tipPercentage) {
-      saveToLocalStorage("tipPercentage", tipPercentage);
-    }
+    saveToLocalStorage("tipPercentage", tipPercentage);
   }, [tipPercentage]);
 
   async function getPresignedUrl() {
@@ -208,7 +206,7 @@ export function Calculator() {
         setItems(newItems);
         setTax(extractedData.tax);
         // setTip(extractedData.tip);
-        adjustFlatTip(extractedData.tip);
+        adjustFlatTip(extractedData.tip ? extractedData.tip : 0);
         if (fileInputRef.current) {
           fileInputRef.current.value = null;
         }
@@ -331,8 +329,7 @@ export function Calculator() {
     setHasMounted(false);
     setPeople([]);
     setTax(0);
-    setTip(0);
-    setTipPercentage(15);
+    adjustFlatTip(0);
     if (fileInputRef.current) {
       fileInputRef.current.value = null;
     }
@@ -349,7 +346,9 @@ export function Calculator() {
       if (newTipPercentage < 0) {
         return;
       }
-      setTipPercentage(newTipPercentage);
+      const newTip = (newTipPercentage / 100) * totalCostBeforeExtras;
+      adjustFlatTip(newTip);
+      // setTipPercentage(newTipPercentage);
       // setTip((newTipPercentage / 100) * totalCostBeforeExtras);
     },
     [tipPercentage],
@@ -383,11 +382,8 @@ export function Calculator() {
     Math.round(0.0825 * totalCostBeforeExtras * 100) / 100,
   );
   useEffect(() => {
-    if (tax) saveToLocalStorage("tax", tax);
+    saveToLocalStorage("tax", tax);
   }, [tax]);
-  // const [tax, setTax] = useState<number>(
-  //   Math.round(0.0825 * totalCostBeforeExtras * 100) / 100,
-  // );
   useEffect(() => {
     if (totalCostBeforeExtras <= 0) {
       setTip(0);
@@ -395,19 +391,10 @@ export function Calculator() {
     }
     const newTip = (totalCostBeforeExtras * tipPercentage) / 100;
     if (tip !== newTip) {
-      setTip(newTip);
+      adjustFlatTip(tip);
     }
-  }, [totalCostBeforeExtras, tipPercentage]);
+  }, [totalCostBeforeExtras]);
 
-  // useEffect(() => {
-  //   if (totalCostBeforeExtras <= 0) {
-  //     return;
-  //   }
-  //   const newTipPercentage = (tip / totalCostBeforeExtras) * 100;
-  //   if (tipPercentage !== newTipPercentage) {
-  //     setTipPercentage(newTipPercentage);
-  //   }
-  // }, [totalCostBeforeExtras, tip]);
   const totalCostAfterExtras = totalCostBeforeExtras + tip + tax;
 
   function calculateAmountsOwed(items: Array<Item>, people: Array<Person>) {
@@ -712,7 +699,7 @@ export function Calculator() {
                 <Button
                   className="cursor-pointer"
                   onClick={() => {
-                    setTipPercentage(15);
+                    adjustFlatTip((15 / 100) * totalCostBeforeExtras);
                   }}
                   variant="outline"
                 >
@@ -721,7 +708,7 @@ export function Calculator() {
                 <Button
                   className="cursor-pointer"
                   onClick={() => {
-                    setTipPercentage(0);
+                    adjustFlatTip(0);
                   }}
                   variant="outline"
                 >
