@@ -343,7 +343,8 @@ export function Calculator() {
     setHasMounted(false);
     setPeople([]);
     setTax(0);
-    adjustFlatTip(0);
+    setTip(0);
+    setTipPercentage(0);
     if (fileInputRef.current) {
       fileInputRef.current.value = null;
     }
@@ -354,20 +355,15 @@ export function Calculator() {
     });
   }
 
-  const handleAdjustTipPercentage = useCallback(
-    (amt: number) => {
-      const newTipPercentage = Math.round(Math.trunc(tipPercentage) + amt);
-      if (newTipPercentage < 0) {
-        return;
-      }
-      setTipPercentage(newTipPercentage);
-      if (totalCostBeforeExtras > 0) {
-        const newTip = (newTipPercentage / 100) * totalCostBeforeExtras;
-        setTip(newTip);
-      }
-    },
-    [tip],
-  );
+  const handleAdjustTipPercentage = (amt: number) => {
+    const newTipPercentage = Math.trunc(tipPercentage) + amt;
+    if (newTipPercentage < 0) {
+      return;
+    }
+    setTipPercentage(newTipPercentage);
+    const newTip = (newTipPercentage / 100) * totalCostBeforeExtras;
+    setTip(newTip);
+  };
 
   function adjustFlatTip(amt: number) {
     if (amt === undefined) {
