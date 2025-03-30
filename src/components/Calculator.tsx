@@ -731,7 +731,8 @@ export function Calculator() {
                 <Button
                   className="cursor-pointer"
                   onClick={() => {
-                    adjustFlatTip(0);
+                    setTipPercentage(0);
+                    setTip(0);
                   }}
                   variant="outline"
                 >
