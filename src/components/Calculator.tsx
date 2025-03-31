@@ -14,12 +14,18 @@ import {
   Sparkles,
   Check,
   Frown,
+  Users,
+  UsersRound,
+  UserRoundX,
+  Utensils,
+  UtensilsCrossed,
 } from "lucide-react";
 import { toast } from "sonner";
 import { BlurFade } from "./magicui/blur-fade";
 import { ModeToggle } from "./ModeToggle";
 import { motion } from "motion/react";
 import { NumberTicker } from "./magicui/number-ticker";
+import { Badge } from "./ui/badge";
 
 interface Item {
   id: number;
@@ -32,6 +38,8 @@ interface Person {
   id: number;
   name: string;
 }
+
+const MotionButton = motion(Button);
 
 const randomNames = [
   "Dylan G.",
@@ -88,6 +96,8 @@ export function Calculator() {
   const [hasMounted, setHasMounted] = useState(true);
   const [copied, setCopied] = useState<boolean>(false);
   const [totalCostBeforeExtras, setTotalCostBeforeExtras] = useState(0);
+  const [showPeople, setShowPeople] = useState<boolean>(true);
+  const [showItems, setShowItems] = useState<boolean>(true);
   const fileInputRef = useRef(null);
   const itemInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const peopleInputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -504,93 +514,124 @@ export function Calculator() {
                   />
                 </Button>
               </div>
-              <motion.button
+              <MotionButton
+                className="bg-red-600 cursor-pointer"
+                onClick={clearReceipt}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >
-                <Button
-                  className="bg-red-600 cursor-pointer"
-                  onClick={clearReceipt}
-                >
-                  Clear
-                </Button>
-              </motion.button>
+                Clear
+              </MotionButton>
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-y-2">
-            <p className="font-bold">People</p>
+            <div className="flex items-center gap-x-2">
+              <p className="font-bold mr-2">People</p>
+              <Button
+                variant="outline"
+                onClick={() => setShowItems(!showItems)}
+              >
+                <Utensils
+                  className={`transition-all duration-300 ${showItems ? "scale-100" : "scale-0"}`}
+                />
+                <UtensilsCrossed
+                  className={`absolute transition-all duration-300 ${showItems ? "scale-0" : "scale-100"}`}
+                />
+              </Button>
+            </div>
             {people.map((person, idx, index) => (
-              <div className="flex justify-between items-center">
-                <div className="flex w-min items-center gap-x-1">
-                  <Button
-                    className="cursor-pointer w-6 h-6"
-                    variant="ghost"
-                    onClick={() => removePerson(person.id)}
-                  >
-                    <X />
-                  </Button>
+              <div>
+                <div className="flex justify-between items-center">
+                  <div className="flex w-min items-center gap-x-1">
+                    <Button
+                      className="cursor-pointer w-6 h-6"
+                      variant="ghost"
+                      onClick={() => removePerson(person.id)}
+                    >
+                      <X />
+                    </Button>
+                    <BlurFade
+                      duration={0.3}
+                      delay={hasMounted ? 0 : idx * 0.0825}
+                    >
+                      <Input
+                        type="text"
+                        placeholder="Name"
+                        value={person.name}
+                        key={`${person.id}-${idx}`}
+                        ref={(el) => {
+                          peopleInputRefs.current[person.id] = el;
+                        }}
+                        onChange={(e) =>
+                          handleUpdatePersonName(person.id, e.target.value)
+                        }
+                        className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
+                        onFocus={(e) => {
+                          e.currentTarget.setSelectionRange(
+                            0,
+                            e.currentTarget.value.length,
+                          );
+                        }}
+                        onKeyDownCapture={(e) => handleKeyDown(e, addPerson)}
+                      />
+                    </BlurFade>
+                  </div>
                   <BlurFade
                     duration={0.3}
                     delay={hasMounted ? 0 : idx * 0.0825}
                   >
-                    <Input
-                      type="text"
-                      placeholder="Name"
-                      value={person.name}
-                      key={`${person.id}-${idx}`}
-                      ref={(el) => {
-                        peopleInputRefs.current[person.id] = el;
-                      }}
-                      onChange={(e) =>
-                        handleUpdatePersonName(person.id, e.target.value)
-                      }
-                      className="p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline"
-                      onFocus={(e) => {
-                        e.currentTarget.setSelectionRange(
-                          0,
-                          e.currentTarget.value.length,
-                        );
-                      }}
-                      onKeyDownCapture={(e) => handleKeyDown(e, addPerson)}
-                    />
+                    <div className="w-21 flex justify-between">
+                      <div>$</div>
+                      {/* <div className="text-blue-500 font-bold"> */}
+                      {/*   {amountsOwed[person.id].toFixed(2)}{" "} */}
+                      {/* </div> */}
+                      <NumberTicker
+                        value={amountsOwed[person.id]}
+                        decimalPlaces={2}
+                        className="tracking-tighter font-bold text-blue-500 dark:text-blue-500"
+                        startValue={0}
+                      />
+                    </div>
                   </BlurFade>
                 </div>
-                <BlurFade duration={0.3} delay={hasMounted ? 0 : idx * 0.0825}>
-                  <div className="w-21 flex justify-between">
-                    <div>$</div>
-                    {/* <div className="text-blue-500 font-bold"> */}
-                    {/*   {amountsOwed[person.id].toFixed(2)}{" "} */}
-                    {/* </div> */}
-                    <NumberTicker
-                      value={amountsOwed[person.id]}
-                      decimalPlaces={2}
-                      className="tracking-tighter font-bold text-blue-500 dark:text-blue-500"
-                      startValue={0}
-                    />
-                  </div>
-                </BlurFade>
+                <div className="flex flex-wrap gap-1">
+                  {showItems &&
+                    items.map(
+                      (item) =>
+                        item.people.includes(person.id) && (
+                          <Badge variant="outline">{item.name}</Badge>
+                        ),
+                    )}
+                </div>
               </div>
             ))}
-            <div className="w-fit">
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                className="w-fit"
-                whileTap={{ scale: 0.9 }}
-              >
-                <Button
-                  className="bg-blue-500 cursor-pointer"
-                  onClick={addPerson}
-                >
-                  Add a person
-                </Button>
-              </motion.button>
-            </div>
+            <MotionButton
+              className={`bg-blue-500 cursor-pointer w-fit ${people.length > 0 && items.length > 0 && showItems ? "mt-2" : ""}`}
+              onClick={addPerson}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              Add a person
+            </MotionButton>
           </div>
           <Separator className="my-4" />
           <div className="flex flex-col gap-y-2">
-            <p className="font-bold">Items</p>
+            <div className="flex items-center gap-x-2">
+              <p className="font-bold mr-2">Items</p>
+              <Button
+                variant="outline"
+                onClick={() => setShowPeople(!showPeople)}
+              >
+                <UsersRound
+                  className={`transition-all duration-300 ${showPeople ? "scale-100" : "scale-0"}`}
+                />
+                <UserRoundX
+                  className={`absolute transition-all duration-300 ${showPeople ? "scale-0" : "scale-100"}`}
+                />
+              </Button>
+            </div>
             {items.map((item, idx) => (
               <div>
                 <div className="flex w-full justify-between items-center">
@@ -649,38 +690,34 @@ export function Calculator() {
                   delay={hasMounted ? 0 : 0.01 + idx * 0.0825}
                 >
                   <div className="flex flex-wrap gap-2">
-                    {people.map((person) => (
-                      <Button
-                        className={`w-fit px-2 cursor-pointer text-xs ${person.name === "" ? "text-gray-400" : ""}`}
-                        variant={
-                          item.people.includes(person.id)
-                            ? "default"
-                            : "outline"
-                        }
-                        onClick={() =>
-                          handleUpdatePersonOnItem(item.id, person.id)
-                        }
-                      >
-                        {person.name ? person.name : "Name"}
-                      </Button>
-                    ))}
+                    {showPeople &&
+                      people.map((person) => (
+                        <Button
+                          className={`w-fit px-2 cursor-pointer text-xs ${person.name === "" ? "text-gray-400" : ""}`}
+                          variant={
+                            item.people.includes(person.id)
+                              ? "default"
+                              : "outline"
+                          }
+                          onClick={() =>
+                            handleUpdatePersonOnItem(item.id, person.id)
+                          }
+                        >
+                          {person.name ? person.name : "Name"}
+                        </Button>
+                      ))}
                   </div>
                 </BlurFade>
               </div>
             ))}
-            <div className="w-fit">
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <Button
-                  className={`bg-blue-500 cursor-pointer ${items.length > 0 && people.length > 0 ? "mt-2" : ""}`}
-                  onClick={addItem}
-                >
-                  Add an item
-                </Button>
-              </motion.button>
-            </div>
+            <MotionButton
+              className={`bg-blue-500 cursor-pointer w-fit ${items.length > 0 && people.length > 0 && showPeople ? "mt-2" : ""}`}
+              onClick={addItem}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              Add an item
+            </MotionButton>
           </div>
           <Separator className="my-4" />
           <div className="flex flex-col gap-y-2">
@@ -717,16 +754,27 @@ export function Calculator() {
             <div className="flex justify-between items-center">
               <div className="flex gap-x-2 items-center">
                 <div className="mr-2 font-bold">Add Tip</div>
+                {/* <Button */}
+                {/*   className="cursor-pointer px-2" */}
+                {/*   onClick={() => { */}
+                {/*     totalCostBeforeExtras <= 0 */}
+                {/*       ? setTipPercentage(15) */}
+                {/*       : adjustFlatTip((15 / 100) * totalCostBeforeExtras); */}
+                {/*   }} */}
+                {/*   variant="outline" */}
+                {/* > */}
+                {/*   15% */}
+                {/* </Button> */}
                 <Button
-                  className="cursor-pointer"
+                  className="cursor-pointer px-2"
                   onClick={() => {
                     totalCostBeforeExtras <= 0
-                      ? setTipPercentage(15)
-                      : adjustFlatTip((15 / 100) * totalCostBeforeExtras);
+                      ? setTipPercentage(20)
+                      : adjustFlatTip((20 / 100) * totalCostBeforeExtras);
                   }}
                   variant="outline"
                 >
-                  <RotateCcw />
+                  20%
                 </Button>
                 <Button
                   className="cursor-pointer"
