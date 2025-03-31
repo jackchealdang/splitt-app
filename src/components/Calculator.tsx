@@ -601,7 +601,12 @@ export function Calculator() {
                     items.map(
                       (item) =>
                         item.people.includes(person.id) && (
-                          <Badge variant="outline">{item.name}</Badge>
+                          <Badge
+                            variant="secondary"
+                            className="bg-gray-200 dark:bg-gray-700"
+                          >
+                            {item.name}
+                          </Badge>
                         ),
                     )}
                 </div>
