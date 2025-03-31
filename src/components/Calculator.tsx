@@ -603,7 +603,7 @@ export function Calculator() {
                         item.people.includes(person.id) && (
                           <Badge
                             variant="secondary"
-                            className="bg-gray-200 dark:bg-gray-700"
+                            className="bg-gray-200 dark:bg-gray-800"
                           >
                             {item.name}
                           </Badge>
