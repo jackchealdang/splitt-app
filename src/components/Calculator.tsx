@@ -272,7 +272,7 @@ export function Calculator() {
     setHasMounted(true);
     const newId = getNextPersonId();
     // const randomNumber = Math.floor(Math.random() * randomNames.length);
-    const newName = "New Person";
+    const newName = "New person";
     const newPerson: Person = {
       id: newId,
       name: newName,
