@@ -39,31 +39,22 @@ interface Person {
   name: string;
 }
 
-const MotionButton = motion(Button);
+interface PersonSubTotal {
+  id: number;
+  amt: number;
+}
 
-const randomNames = [
-  "Dylan G.",
-  "Helly R.",
-  "Irving B.",
-  "Mark S.",
-  "Seth Milchick",
-  "Harmony Cobel",
-  "Helena Eagan",
-  "Jame Eagan",
-  "Judd",
-  "Gemma Scout",
-  "Ricken Hale",
-  "Devon Hale",
-  "Natalie Kalen",
-  "Ms. Casey",
-  "Ms. Huang",
-  "Burt G.",
-  "Felicia",
-  "Lorne",
-  "Mr. Drummond",
-  "Kier Eagen",
-  "Doug Graner",
-];
+interface PersonTip {
+  id: number;
+  amt: number;
+}
+
+interface PersonTax {
+  id: number;
+  amt: number;
+}
+
+const MotionButton = motion(Button);
 
 let currentPersonId = 0;
 let currentItemId = 0;
@@ -101,6 +92,8 @@ export function Calculator() {
   const fileInputRef = useRef(null);
   const itemInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const peopleInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  // const [personTips, setPersonTips] = useState<Array<PersonTip>>([]);
+  // const [personTaxes, setPersonTaxes] = useState<Array<PersonTax>>([]);
 
   useEffect(() => {
     setHasMounted(false);
@@ -278,10 +271,11 @@ export function Calculator() {
   function addPerson() {
     setHasMounted(true);
     const newId = getNextPersonId();
-    const randomNumber = Math.floor(Math.random() * randomNames.length);
+    // const randomNumber = Math.floor(Math.random() * randomNames.length);
+    const newName = "New Person";
     const newPerson: Person = {
       id: newId,
-      name: randomNames[randomNumber],
+      name: newName,
     };
     setPeople((prevPeople) => [...prevPeople, newPerson]);
 
@@ -427,6 +421,9 @@ export function Calculator() {
   // }, [totalCostBeforeExtras]);
 
   const totalCostAfterExtras = totalCostBeforeExtras + tip + tax;
+  let peopleSubTotals: Array<PersonSubTotal> = [];
+  let peopleTips: Array<PersonTip> = [];
+  let peopleTaxes: Array<PersonTax> = [];
 
   function calculateAmountsOwed(items: Array<Item>, people: Array<Person>) {
     let amounts: Record<number, number> = {};
@@ -451,8 +448,26 @@ export function Calculator() {
       const personTotal = amounts[Number(personId)];
       const personTip = (personTotal / totalCostBeforeExtras) * tip;
       const personTax = (personTotal / totalCostBeforeExtras) * tax;
+      const newPersonSubTotal: PersonSubTotal = {
+        id: Number(personId),
+        amt: personTotal,
+      };
+      const newPersonTip: PersonTip = {
+        id: Number(personId),
+        amt: personTip,
+      };
+      const newPersonTax: PersonTax = {
+        id: Number(personId),
+        amt: personTax,
+      };
+      peopleSubTotals.push(newPersonSubTotal);
+      peopleTips.push(newPersonTip);
+      peopleTaxes.push(newPersonTax);
       amounts[Number(personId)] += personTip + personTax;
     });
+
+    // setPersonTips(peopleTips);
+    // setPersonTaxes(peopleTaxes);
 
     return amounts;
   }
@@ -601,14 +616,50 @@ export function Calculator() {
                     items.map(
                       (item) =>
                         item.people.includes(person.id) && (
-                          <Badge
-                            variant="secondary"
-                            className="bg-gray-200 dark:bg-gray-800"
-                          >
-                            {item.name}
-                          </Badge>
+                          <>
+                            <Badge
+                              variant="secondary"
+                              className="bg-gray-200 dark:bg-gray-800"
+                            >
+                              {item.name} $
+                              {(item.cost / item.people.length).toFixed(2)}
+                            </Badge>
+                          </>
                         ),
                     )}
+                </div>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {showItems && (
+                    <>
+                      <Badge
+                        variant="secondary"
+                        className="bg-gray-100 dark:bg-gray-900 text-blue-500 font-bold"
+                      >
+                        Subtotal $
+                        {peopleSubTotals
+                          .find((p) => p.id === person.id)
+                          ?.amt.toFixed(2)}
+                      </Badge>
+                      <Badge
+                        variant="secondary"
+                        className="bg-gray-100 dark:bg-gray-900 text-blue-500 font-bold"
+                      >
+                        Tip $
+                        {peopleTips
+                          .find((p) => p.id === person.id)
+                          ?.amt.toFixed(2)}
+                      </Badge>
+                      <Badge
+                        variant="secondary"
+                        className="bg-gray-100 dark:bg-gray-900 text-blue-500 font-bold"
+                      >
+                        Tax $
+                        {peopleTaxes
+                          .find((p) => p.id === person.id)
+                          ?.amt.toFixed(2)}
+                      </Badge>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
