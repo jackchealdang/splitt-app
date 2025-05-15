@@ -429,6 +429,27 @@ export function Calculator() {
     let amounts: Record<number, number> = {};
 
     people.forEach((person) => (amounts[person.id] = 0));
+    if (totalCostBeforeExtras === 0) {
+      Object.keys(amounts).forEach((personId) => {
+        const newPersonSubTotal: PersonSubTotal = {
+          id: Number(personId),
+          amt: 0,
+        };
+        const newPersonTip: PersonTip = {
+          id: Number(personId),
+          amt: 0,
+        };
+        const newPersonTax: PersonTax = {
+          id: Number(personId),
+          amt: 0,
+        };
+        peopleSubTotals.push(newPersonSubTotal);
+        peopleTips.push(newPersonTip);
+        peopleTaxes.push(newPersonTax);
+      });
+
+      return amounts;
+    }
 
     items.forEach((item) => {
       if (item.people.length > 0) {
@@ -438,11 +459,6 @@ export function Calculator() {
         });
       }
     });
-
-    // could possibly move this to somewhere earlier
-    if (totalCostBeforeExtras === 0) {
-      return amounts;
-    }
 
     Object.keys(amounts).forEach((personId) => {
       const personTotal = amounts[Number(personId)];
@@ -507,7 +523,7 @@ export function Calculator() {
 
   return (
     <div>
-      <Card className="w-[24rem] h-min-[32rem] mt-6 mb-14">
+      <Card className="w-[25rem] h-min-[32rem] mt-6 mb-14">
         <CardHeader>
           <CardTitle>
             <div className="flex justify-between items-center">
