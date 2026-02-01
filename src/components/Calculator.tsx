@@ -109,7 +109,7 @@ export function Calculator() {
   // const [personTips, setPersonTips] = useState<Array<PersonTip>>([]);
   // const [personTaxes, setPersonTaxes] = useState<Array<PersonTax>>([]);
   const [showUpdates, setShowUpdates] = useState<boolean>(true);
-  const latestVersion = '1.0.1';
+  const latestVersion = '1.0.2';
 
   useEffect(() => {
     setHasMounted(false);
