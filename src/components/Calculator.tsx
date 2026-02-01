@@ -547,7 +547,7 @@ export function Calculator() {
                   <DropdownMenuTrigger asChild>
                     <Button className="cursor-pointer" variant="outline">Settings</Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="z-50 sideOffset={6}">
+                  <DropdownMenuContent className="z-50" sideOffset={6}>
                     <DropdownMenuGroup>
                       <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                         Split Tip Evenly
