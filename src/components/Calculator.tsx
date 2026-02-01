@@ -19,6 +19,7 @@ import {
   UserRoundX,
   Utensils,
   UtensilsCrossed,
+  CopyPlus,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { BlurFade } from './magicui/blur-fade';
@@ -36,6 +37,7 @@ import {
 } from './ui/dropdown-menu';
 import { Switch } from './ui/switch';
 import { Settings } from './ui/settings';
+import { Updates } from './ui/updates';
 
 interface Item {
   id: number;
@@ -106,6 +108,8 @@ export function Calculator() {
   const peopleInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   // const [personTips, setPersonTips] = useState<Array<PersonTip>>([]);
   // const [personTaxes, setPersonTaxes] = useState<Array<PersonTax>>([]);
+  const [showUpdates, setShowUpdates] = useState<boolean>(true);
+  const latestVersion = '1.0.1';
 
   useEffect(() => {
     setHasMounted(false);
@@ -140,6 +144,16 @@ export function Calculator() {
 
     const storedTaxEvenly = getFromLocalStorage('taxEvenly');
     if (storedTaxEvenly !== null) setTaxEvenly(storedTaxEvenly);
+
+    const storedShowUpdates = getFromLocalStorage('showUpdates');
+    if (storedShowUpdates !== null) setShowUpdates(storedShowUpdates);
+
+    const storedAppVersion = getFromLocalStorage('appVersion');
+    if (storedAppVersion && latestVersion !== storedAppVersion) {
+      setShowUpdates(true);
+    }
+
+    saveToLocalStorage('appVersion', latestVersion);
   }, []);
 
   useEffect(() => {
@@ -168,6 +182,10 @@ export function Calculator() {
   useEffect(() => {
     saveToLocalStorage('taxEvenly', taxEvenly);
   }, [taxEvenly]);
+
+  useEffect(() => {
+    saveToLocalStorage('showUpdates', showUpdates);
+  }, [showUpdates]);
 
   async function getPresignedUrl() {
     const response = await fetch(
@@ -323,6 +341,32 @@ export function Calculator() {
     const newItems = items.filter((item) => item.id !== id);
     setItems(newItems);
     calculateTotalCostBeforeExtras(newItems);
+  }
+
+  function duplicateItem(id: number) {
+    setHasMounted(true);
+    const itemToDuplicate = items.find((item) => item.id === id);
+    const newId = getNextItemId();
+    if (itemToDuplicate) {
+      const newItem: Item = {
+        id: newId,
+        name: itemToDuplicate.name,
+        cost: itemToDuplicate.cost,
+        people: [...itemToDuplicate.people],
+      };
+      const newItems = [...items, newItem];
+      setItems(newItems);
+      calculateTotalCostBeforeExtras(newItems);
+    }
+
+    // Wait for DOM update before focusing on new input
+    setTimeout(() => {
+      const input = itemInputRefs.current[newId];
+      if (input) {
+        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        input.focus();
+      }
+    }, 0);
   }
 
   function addItem() {
@@ -559,6 +603,12 @@ export function Calculator() {
 
   return (
     <div>
+      {showUpdates ? (
+        <Updates
+          showUpdates={showUpdates}
+          setShowUpdates={setShowUpdates}
+        />
+      ) : null}
       <Card className='w-[25rem] h-min-[32rem] mt-6 mb-14'>
         <CardHeader>
           <CardTitle>
@@ -623,7 +673,7 @@ export function Calculator() {
                       variant='ghost'
                       onClick={() => removePerson(person.id)}
                     >
-                      <X />
+                      <X className='size-fit' />
                     </Button>
                     <BlurFade
                       duration={0.3}
@@ -691,30 +741,47 @@ export function Calculator() {
                     <>
                       <Badge
                         variant='secondary'
-                        className='bg-gray-100 dark:bg-gray-900 text-blue-500 font-bold'
+                        className='bg-gray-100 dark:bg-gray-900 text-blue-500 font-bold gap-0'
                       >
                         Subtotal $
-                        {peopleSubTotals
-                          .find((p) => p.id === person.id)
-                          ?.amt.toFixed(2)}
+                        <NumberTicker
+                          value={
+                            peopleSubTotals.find((p) => p.id === person.id)
+                              ?.amt || 0
+                          }
+                          decimalPlaces={2}
+                          className='tracking-tighter font-bold text-blue-500 dark:text-blue-500 pl-0'
+                          startValue={0}
+                        />
                       </Badge>
                       <Badge
                         variant='secondary'
-                        className='bg-gray-100 dark:bg-gray-900 text-blue-500 font-bold'
+                        className='bg-gray-100 dark:bg-gray-900 text-blue-500 font-bold gap-0'
                       >
                         Tip $
-                        {peopleTips
-                          .find((p) => p.id === person.id)
-                          ?.amt.toFixed(2)}
+                        <NumberTicker
+                          value={
+                            peopleTips.find((p) => p.id === person.id)?.amt || 0
+                          }
+                          decimalPlaces={2}
+                          className='tracking-tighter font-bold text-blue-500 dark:text-blue-500 pl-0'
+                          startValue={0}
+                        />
                       </Badge>
                       <Badge
                         variant='secondary'
-                        className='bg-gray-100 dark:bg-gray-900 text-blue-500 font-bold'
+                        className='bg-gray-100 dark:bg-gray-900 text-blue-500 font-bold gap-0'
                       >
                         Tax $
-                        {peopleTaxes
-                          .find((p) => p.id === person.id)
-                          ?.amt.toFixed(2)}
+                        <NumberTicker
+                          value={
+                            peopleTaxes.find((p) => p.id === person.id)?.amt ||
+                            0
+                          }
+                          decimalPlaces={2}
+                          className='tracking-tighter font-bold text-blue-500 dark:text-blue-500 pl-0'
+                          startValue={0}
+                        />
                       </Badge>
                     </>
                   )}
@@ -755,7 +822,14 @@ export function Calculator() {
                       variant='ghost'
                       onClick={() => removeItem(item.id)}
                     >
-                      <X />
+                      <X className='size-fit' />
+                    </Button>
+                    <Button
+                      className='cursor-pointer w-6 h-6 mr-2'
+                      variant='ghost'
+                      onClick={() => duplicateItem(item.id)}
+                    >
+                      <CopyPlus className='size-fit' />
                     </Button>
                     <BlurFade
                       duration={0.3}
@@ -807,7 +881,7 @@ export function Calculator() {
                     {showPeople &&
                       people.map((person) => (
                         <Button
-                          className={`w-fit px-2 cursor-pointer text-xs ${person.name === '' ? 'text-gray-400' : ''}`}
+                          className={`w-fit px-2 cursor-pointer text-xs ${!item.people.includes(person.id) ? 'text-gray-500' : ''}`}
                           variant={
                             item.people.includes(person.id)
                               ? 'default'
