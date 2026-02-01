@@ -549,14 +549,15 @@ export function Calculator() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="z-50" sideOffset={6}>
                     <DropdownMenuGroup>
-                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <DropdownMenuItem>Test</DropdownMenuItem>
+                      {/* <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                         Split Tip Evenly
                         <Switch className="cursor-pointer" onClick={() => setTipEvenly(!tipEvenly)}/>
                       </DropdownMenuItem>
                       <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                         Split Tax Evenly
                         <Switch className="cursor-pointer" onClick={() => setTaxEvenly(!taxEvenly)}/>
-                      </DropdownMenuItem>
+                      </DropdownMenuItem> */}
                     </DropdownMenuGroup>
                   </DropdownMenuContent>
                 </DropdownMenu>
