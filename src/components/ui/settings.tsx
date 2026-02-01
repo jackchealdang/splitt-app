@@ -14,11 +14,13 @@ export function Settings({
   setTipEvenly,
   taxEvenly,
   setTaxEvenly,
+  setShowUpdates,
 }: {
   tipEvenly: boolean;
   setTipEvenly: (value: boolean) => void;
   taxEvenly: boolean;
   setTaxEvenly: (value: boolean) => void;
+  setShowUpdates: (value: boolean) => void;
 }) {
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
 
@@ -46,21 +48,32 @@ export function Settings({
       >
         <DropdownMenuGroup>
           <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-            Split Tip Evenly
-            <Switch
-              className='cursor-pointer'
-              onClick={() => setTipEvenly(!tipEvenly)}
-              checked={tipEvenly}
-            />
+            <div className='flex justify-between w-full'>
+              Split Tip Evenly
+              <Switch
+                className='cursor-pointer'
+                onClick={() => setTipEvenly(!tipEvenly)}
+                checked={tipEvenly}
+              />
+            </div>
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-            Split Tax Evenly
-            <Switch
-              className='cursor-pointer'
-              onClick={() => setTaxEvenly(!taxEvenly)}
-              checked={taxEvenly}
-            />
+            <div className='flex justify-between w-full'>
+              Split Tax Evenly
+              <Switch
+                className='cursor-pointer'
+                onClick={() => setTaxEvenly(!taxEvenly)}
+                checked={taxEvenly}
+              />
+            </div>
           </DropdownMenuItem>
+          <DropdownMenuItem disabled>
+            More Settings (Coming Soon!)
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setShowUpdates(true)}>
+            What's New?
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled>About</DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

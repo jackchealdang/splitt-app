@@ -620,6 +620,7 @@ export function Calculator() {
                   setTipEvenly={setTipEvenly}
                   taxEvenly={taxEvenly}
                   setTaxEvenly={setTaxEvenly}
+                  setShowUpdates={setShowUpdates}
                 />
                 <ModeToggle />
                 <Button
