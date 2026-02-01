@@ -134,6 +134,12 @@ export function Calculator() {
 
     const storedTax = getFromLocalStorage('tax');
     if (storedTax) setTax(storedTax);
+
+    const storedTipEvenly = getFromLocalStorage('tipEvenly');
+    if (storedTipEvenly !== null) setTipEvenly(storedTipEvenly);
+
+    const storedTaxEvenly = getFromLocalStorage('taxEvenly');
+    if (storedTaxEvenly !== null) setTaxEvenly(storedTaxEvenly);
   }, []);
 
   useEffect(() => {
@@ -154,6 +160,14 @@ export function Calculator() {
     saveToLocalStorage('tipPercentage', tipPercentage);
     saveToLocalStorage('tip', tip);
   }, [tipPercentage, tip]);
+
+  useEffect(() => {
+    saveToLocalStorage('tipEvenly', tipEvenly);
+  }, [tipEvenly]);
+
+  useEffect(() => {
+    saveToLocalStorage('taxEvenly', taxEvenly);
+  }, [taxEvenly]);
 
   async function getPresignedUrl() {
     const response = await fetch(
