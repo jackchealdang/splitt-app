@@ -70,7 +70,10 @@ export function Settings({
           <DropdownMenuItem disabled>
             More Settings (Coming Soon!)
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setShowUpdates(true)}>
+          <DropdownMenuItem
+            className='cursor-pointer'
+            onClick={() => setShowUpdates(true)}
+          >
             What's New?
           </DropdownMenuItem>
           <DropdownMenuItem disabled>About</DropdownMenuItem>
