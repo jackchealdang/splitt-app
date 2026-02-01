@@ -28,6 +28,7 @@ import { NumberTicker } from "./magicui/number-ticker";
 import { Badge } from "./ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Switch } from "./ui/switch";
+import { Settings } from "./ui/settings";
 
 interface Item {
   id: number;
@@ -543,23 +544,7 @@ export function Calculator() {
             <div className="flex justify-between items-center">
               <div className="flex gap-x-2 items-center">
                 <p className="text-lg mr-2">Splitt</p>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button className="cursor-pointer" variant="outline">Settings</Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="z-50" sideOffset={6}>
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                        Split Tip Evenly
-                        <Switch className="cursor-pointer" onClick={() => setTipEvenly(!tipEvenly)}/>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                        Split Tax Evenly
-                        <Switch className="cursor-pointer" onClick={() => setTaxEvenly(!taxEvenly)}/>
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Settings tipEvenly={tipEvenly} setTipEvenly={setTipEvenly} taxEvenly={taxEvenly} setTaxEvenly={setTaxEvenly}/>
                 <ModeToggle />
                 <Button
                   className="cursor-pointer aspect-square"
