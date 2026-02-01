@@ -3,9 +3,6 @@ import { Button } from "./button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
 import React from "react";
 
-                
-
-
 export function Settings({tipEvenly, setTipEvenly, taxEvenly, setTaxEvenly}: {tipEvenly: boolean, setTipEvenly: (value: boolean) => void, taxEvenly: boolean, setTaxEvenly: (value: boolean) => void}) {
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
 
