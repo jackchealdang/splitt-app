@@ -26,6 +26,8 @@ import { ModeToggle } from "./ModeToggle";
 import { motion } from "motion/react";
 import { NumberTicker } from "./magicui/number-ticker";
 import { Badge } from "./ui/badge";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { Switch } from "./ui/switch";
 
 interface Item {
   id: number;
@@ -89,6 +91,8 @@ export function Calculator() {
   const [totalCostBeforeExtras, setTotalCostBeforeExtras] = useState(0);
   const [showPeople, setShowPeople] = useState<boolean>(true);
   const [showItems, setShowItems] = useState<boolean>(true);
+  const [tipEvenly, setTipEvenly] = useState<boolean>(false);
+  const [taxEvenly, setTaxEvenly] = useState<boolean>(false);
   const fileInputRef = useRef(null);
   const itemInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const peopleInputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -462,8 +466,18 @@ export function Calculator() {
 
     Object.keys(amounts).forEach((personId) => {
       const personTotal = amounts[Number(personId)];
-      const personTip = (personTotal / totalCostBeforeExtras) * tip;
-      const personTax = (personTotal / totalCostBeforeExtras) * tax;
+      let personTip = 0;
+      if (!tipEvenly) {
+        personTip = (personTotal / totalCostBeforeExtras) * tip;
+      } else {
+        personTip = tip / people.length;
+      }
+      let personTax = 0;
+      if (!taxEvenly) {
+        personTax = (personTotal / totalCostBeforeExtras) * tax;
+      } else {
+        personTax = tax / people.length;
+      }
       const newPersonSubTotal: PersonSubTotal = {
         id: Number(personId),
         amt: personTotal,
@@ -529,6 +543,23 @@ export function Calculator() {
             <div className="flex justify-between items-center">
               <div className="flex gap-x-2 items-center">
                 <p className="text-lg mr-2">Splitt</p>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline">Settings</Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuGroup>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      Split Tip Evenly
+                      <Switch onClick={() => setTipEvenly(!tipEvenly)}/>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      Split Tax Evenly
+                      <Switch onClick={() => setTaxEvenly(!taxEvenly)}/>
+                    </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <ModeToggle />
                 <Button
                   className="cursor-pointer aspect-square"
