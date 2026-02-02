@@ -7,7 +7,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './dropdown-menu';
-import React from 'react';
+import React, { useState } from 'react';
+import { About } from './about';
 
 export function Settings({
   tipEvenly,
@@ -23,62 +24,71 @@ export function Settings({
   setShowUpdates: (value: boolean) => void;
 }) {
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
+  const [showAbout, setShowAbout] = useState<boolean>(false);
 
   return (
-    <DropdownMenu
-      open={dropdownOpen}
-      onOpenChange={(val) => setDropdownOpen(val)}
-    >
-      <DropdownMenuTrigger
-        asChild
-        onClick={() => {
-          setDropdownOpen((val) => !val);
-        }}
+    <div>
+      <About
+        showAbout={showAbout}
+        setShowAbout={setShowAbout}
+      />
+      <DropdownMenu
+        open={dropdownOpen}
+        onOpenChange={(val) => setDropdownOpen(val)}
       >
-        <Button
-          className='cursor-pointer'
-          variant='outline'
+        <DropdownMenuTrigger
+          asChild
+          onClick={() => {
+            setDropdownOpen((val) => !val);
+          }}
         >
-          Settings
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        className='z-50'
-        sideOffset={6}
-      >
-        <DropdownMenuGroup>
-          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-            <div className='flex justify-between w-full'>
-              Split Tip Evenly
-              <Switch
-                className='cursor-pointer'
-                onClick={() => setTipEvenly(!tipEvenly)}
-                checked={tipEvenly}
-              />
-            </div>
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-            <div className='flex justify-between w-full'>
-              Split Tax Evenly
-              <Switch
-                className='cursor-pointer'
-                onClick={() => setTaxEvenly(!taxEvenly)}
-                checked={taxEvenly}
-              />
-            </div>
-          </DropdownMenuItem>
-          <DropdownMenuItem disabled>
-            More Settings (Coming Soon!)
-          </DropdownMenuItem>
-          <DropdownMenuItem
+          <Button
             className='cursor-pointer'
-            onClick={() => setShowUpdates(true)}
+            variant='outline'
           >
-            What's New?
-          </DropdownMenuItem>
-          <DropdownMenuItem disabled>About</DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+            Settings
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          className='z-50'
+          sideOffset={6}
+        >
+          <DropdownMenuGroup>
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+              <div className='flex justify-between w-full'>
+                Split Tip Evenly
+                <Switch
+                  className='cursor-pointer'
+                  onClick={() => setTipEvenly(!tipEvenly)}
+                  checked={tipEvenly}
+                />
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+              <div className='flex justify-between w-full'>
+                Split Tax Evenly
+                <Switch
+                  className='cursor-pointer'
+                  onClick={() => setTaxEvenly(!taxEvenly)}
+                  checked={taxEvenly}
+                />
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled>
+              More Settings (Coming Soon!)
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className='cursor-pointer'
+              onClick={() => setShowUpdates(true)}
+            >
+              What's New?
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setShowAbout(true)}>
+              About
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }
