@@ -21,7 +21,7 @@ export function Updates({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>New & improved updates! 🤠</DialogTitle>
+          <DialogTitle>New & improved updates! 🤠🔥</DialogTitle>
           <DialogDescription>
             New updates to make Splitt even better!
           </DialogDescription>

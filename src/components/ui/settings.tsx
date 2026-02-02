@@ -9,6 +9,8 @@ import {
 } from './dropdown-menu';
 import React, { useState } from 'react';
 import { About } from './about';
+import { HowToAddApp } from './howtoaddapp';
+import { Box, CircleQuestionMark, Flame } from 'lucide-react';
 
 export function Settings({
   tipEvenly,
@@ -25,12 +27,17 @@ export function Settings({
 }) {
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
   const [showAbout, setShowAbout] = useState<boolean>(false);
+  const [showHowToAddApp, setShowHowToAddApp] = useState<boolean>(false);
 
   return (
     <div>
       <About
         showAbout={showAbout}
         setShowAbout={setShowAbout}
+      />
+      <HowToAddApp
+        show={showHowToAddApp}
+        setShow={setShowHowToAddApp}
       />
       <DropdownMenu
         open={dropdownOpen}
@@ -81,9 +88,18 @@ export function Settings({
               className='cursor-pointer'
               onClick={() => setShowUpdates(true)}
             >
+              <Flame />
               What's New?
             </DropdownMenuItem>
+            <DropdownMenuItem
+              className='cursor-pointer'
+              onClick={() => setShowHowToAddApp(true)}
+            >
+              <Box />
+              How to add Splitt as an app
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setShowAbout(true)}>
+              <CircleQuestionMark />
               About
             </DropdownMenuItem>
           </DropdownMenuGroup>
