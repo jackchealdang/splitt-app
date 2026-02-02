@@ -706,7 +706,7 @@ export function Calculator() {
                     duration={0.3}
                     delay={hasMounted ? 0 : idx * 0.0825}
                   >
-                    <div className='w-21 flex justify-between'>
+                    <div className='w-16 flex justify-between'>
                       <div>$</div>
                       {/* <div className="text-blue-500 font-bold"> */}
                       {/*   {amountsOwed[person.id].toFixed(2)}{" "} */}
@@ -867,7 +867,7 @@ export function Calculator() {
                         itemId={item.id}
                         value={item.cost}
                         onChange={handleUpdateItemCost}
-                        className='w-24'
+                        className='w-19'
                         onKeyDownCapture={(e) => handleKeyDown(e, addItem)}
                       />
                     </div>
@@ -935,7 +935,7 @@ export function Calculator() {
                 </Button>
               </div>
               <CurrencyInput
-                className='w-24'
+                className='w-19'
                 value={tax}
                 onChange={setTax}
               />
@@ -981,7 +981,7 @@ export function Calculator() {
                 </Button>
               </div>
               <CurrencyInput
-                className='w-24'
+                className='w-19'
                 value={tip}
                 onChange={adjustFlatTip}
               />
@@ -1008,28 +1008,28 @@ export function Calculator() {
           <div className='flex flex-col'>
             <div className='flex justify-between'>
               <p>Subtotal</p>
-              <div className='w-21 flex justify-between'>
+              <div className='w-16 flex justify-between'>
                 <div>$</div>
                 <p>{totalCostBeforeExtras.toFixed(2)}</p>
               </div>
             </div>
             <div className='flex justify-between'>
               <p>Tax</p>
-              <div className='w-21 flex justify-between'>
+              <div className='w-16 flex justify-between'>
                 <div>$</div>
                 <p>{tax.toFixed(2)}</p>
               </div>
             </div>
             <div className='flex justify-between'>
               <p>Tip</p>
-              <div className='w-21 flex justify-between'>
+              <div className='w-16 flex justify-between'>
                 <div>$</div>
                 <p>{tip.toFixed(2)}</p>
               </div>
             </div>
             <div className='flex justify-between'>
               <p>Total</p>
-              <div className='w-21 flex justify-between'>
+              <div className='w-16 flex justify-between'>
                 <div>$</div>
                 <p>{totalCostAfterExtras.toFixed(2)}</p>
               </div>

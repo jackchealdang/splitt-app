@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import type React from "react";
+import type React from 'react';
 
-import { useState, useEffect, type ChangeEvent } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { useState, useEffect, type ChangeEvent } from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 type ItemChangeHandler = (itemId: number | string, newValue: number) => void;
 type SimpleChangeHandler = (newValue: number) => void;
@@ -25,24 +25,24 @@ interface CurrencyInputProps {
 }
 
 export default function CurrencyInput({
-  id = "currency-input",
+  id = 'currency-input',
   itemId, // Item identifier from the array
   label,
   value = 0,
   onChange,
-  placeholder = "0.00",
+  placeholder = '0.00',
   className,
   disabled = false,
   required = false,
-  name = "currency-input",
+  name = 'currency-input',
   onKeyDownCapture,
 }: CurrencyInputProps) {
-  const [displayValue, setDisplayValue] = useState("");
+  const [displayValue, setDisplayValue] = useState('');
   const [isFocused, setIsFocused] = useState(false);
 
   // Format the number as currency
   const formatAsCurrency = (num: number): string => {
-    return num.toLocaleString("en-US", {
+    return num.toLocaleString('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
@@ -51,17 +51,17 @@ export default function CurrencyInput({
   // Parse the display value to a number
   const parseToNumber = (str: string): number => {
     // Remove all non-numeric characters except decimal point
-    const cleanedValue = str.replace(/[^0-9.]/g, "");
+    const cleanedValue = str.replace(/[^0-9.]/g, '');
     // Ensure only one decimal point
-    const parts = cleanedValue.split(".");
-    const formattedValue = parts[0] + (parts.length > 1 ? "." + parts[1] : "");
+    const parts = cleanedValue.split('.');
+    const formattedValue = parts[0] + (parts.length > 1 ? '.' + parts[1] : '');
     return Number.parseFloat(formattedValue) || 0;
   };
 
   // Initialize display value from props
   useEffect(() => {
     if (!isFocused) {
-      setDisplayValue(value ? formatAsCurrency(value) : "");
+      setDisplayValue(value ? formatAsCurrency(value) : '');
     }
   }, [value, isFocused]);
 
@@ -79,13 +79,13 @@ export default function CurrencyInput({
     const inputValue = e.target.value;
 
     // Remove currency formatting for editing
-    const rawValue = inputValue.replace(/[^0-9.]/g, "");
+    const rawValue = inputValue.replace(/[^0-9.]/g, '');
 
     // Handle decimal places
-    const parts = rawValue.split(".");
+    const parts = rawValue.split('.');
     let formattedForEditing = parts[0];
     if (parts.length > 1) {
-      formattedForEditing += "." + parts[1].slice(0, 2);
+      formattedForEditing += '.' + parts[1].slice(0, 2);
     }
 
     setDisplayValue(formattedForEditing);
@@ -99,7 +99,7 @@ export default function CurrencyInput({
     setIsFocused(false);
     // Format the value when the input loses focus
     const numericValue = parseToNumber(displayValue);
-    setDisplayValue(numericValue ? formatAsCurrency(numericValue) : "");
+    setDisplayValue(numericValue ? formatAsCurrency(numericValue) : '');
     handleValueChange(numericValue);
   };
 
@@ -107,25 +107,28 @@ export default function CurrencyInput({
     setIsFocused(true);
     // When focusing, show the raw number without formatting
     const numericValue = parseToNumber(displayValue);
-    setDisplayValue(numericValue ? numericValue.toString() : "");
+    setDisplayValue(numericValue ? numericValue.toString() : '');
 
     // Move cursor to the end
     e.target.setSelectionRange(e.target.value.length, e.target.value.length);
   };
 
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn('space-y-2', className)}>
       {label && (
-        <Label htmlFor={id} className="text-sm font-medium">
-          {label} {required && <span className="text-destructive">*</span>}
+        <Label
+          htmlFor={id}
+          className='text-sm font-medium'
+        >
+          {label} {required && <span className='text-destructive'>*</span>}
         </Label>
       )}
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2">$</span>
+      <div className='relative'>
+        <span className='absolute left-3 top-1/2 -translate-y-1/2'>$</span>
         <Input
           id={id}
           name={name}
-          type="text"
+          type='text'
           value={displayValue}
           onChange={handleChange}
           onBlur={handleBlur}
@@ -135,14 +138,14 @@ export default function CurrencyInput({
           required={required}
           onKeyDownCapture={onKeyDownCapture}
           className={cn(
-            "pl-7",
-            disabled && "opacity-70 cursor-not-allowed",
-            "border-none",
-            "focus-visible:ring-0",
-            "shadow-none",
-            "underline",
-            "text-right",
-            "pr-0",
+            'pl-2',
+            disabled && 'opacity-70 cursor-not-allowed',
+            'border-none',
+            'focus-visible:ring-0',
+            'shadow-none',
+            'underline',
+            'text-right',
+            'pr-0',
           )}
         />
       </div>
