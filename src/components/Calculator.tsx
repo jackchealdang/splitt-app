@@ -691,7 +691,7 @@ export function Calculator() {
                         onChange={(e) =>
                           handleUpdatePersonName(person.id, e.target.value)
                         }
-                        className='p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline'
+                        className='p-0 w-60 border-none outline-none shadow-none focus-visible:ring-0 underline'
                         onFocus={(e) => {
                           e.currentTarget.setSelectionRange(
                             0,
@@ -847,7 +847,7 @@ export function Calculator() {
                         onChange={(e) =>
                           handleUpdateItemName(item.id, e.target.value)
                         }
-                        className='p-0 w-44 border-none outline-none shadow-none focus-visible:ring-0 underline'
+                        className='p-0 w-52 border-none outline-none shadow-none focus-visible:ring-0 underline'
                         onFocus={(e) => {
                           e.currentTarget.setSelectionRange(
                             0,
