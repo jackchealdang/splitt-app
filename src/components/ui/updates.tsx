@@ -28,6 +28,14 @@ export function Updates({
         </DialogHeader>
         <div className='mt-3 gap-y-4 flex flex-col'>
           <div>
+            <p className='font-bold font-lg'>V. 1.0.4 - 4/23/2026</p>
+            <ul className='list-disc list-inside mt-3'>
+              <li>
+                Add "All" button for adding/removing all people from an item
+              </li>
+            </ul>
+          </div>
+          <div>
             <p className='font-bold font-lg'>V. 1.0.3</p>
             <ul className='list-disc list-inside mt-3'>
               <li>Add About page</li>
