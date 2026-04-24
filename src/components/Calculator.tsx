@@ -38,33 +38,14 @@ import {
 import { Switch } from './ui/switch';
 import { Settings } from './ui/settings';
 import { Updates } from './ui/updates';
-
-interface Item {
-  id: number;
-  name: string;
-  cost: number;
-  people: Array<number>;
-}
-
-interface Person {
-  id: number;
-  name: string;
-}
-
-interface PersonSubTotal {
-  id: number;
-  amt: number;
-}
-
-interface PersonTip {
-  id: number;
-  amt: number;
-}
-
-interface PersonTax {
-  id: number;
-  amt: number;
-}
+import type {
+  Item,
+  Person,
+  PersonSubTotal,
+  PersonTip,
+  PersonTax,
+} from '@/lib/interfaces';
+import { AddAllButton } from './ui/addallbutton';
 
 const MotionButton = motion(Button);
 
@@ -312,6 +293,27 @@ export function Calculator() {
     calculateTotalCostBeforeExtras(newItems);
   }
 
+  function handleAddAllPeopleToItem(itemId: number) {
+    const newItems = items.map((item) =>
+      item.id === itemId
+        ? {
+            ...item,
+            people: [...people.map((p) => p.id)],
+          }
+        : item,
+    );
+    setItems(newItems);
+    calculateTotalCostBeforeExtras(newItems);
+  }
+
+  function handleRemoveAllPeopleFromItem(itemId: number) {
+    const newItems = items.map((item) =>
+      item.id === itemId ? { ...item, people: [] } : item,
+    );
+    setItems(newItems);
+    calculateTotalCostBeforeExtras(newItems);
+  }
+
   function addPerson() {
     setHasMounted(true);
     const newId = getNextPersonId();
@@ -331,6 +333,10 @@ export function Calculator() {
         input.focus();
       }
     }, 0);
+  }
+
+  function checkIfAllPeopleOnItem(item: Item) {
+    return people.every((person) => item.people.includes(person.id));
   }
 
   function removePerson(id: number) {
@@ -895,6 +901,16 @@ export function Calculator() {
                           {person.name ? person.name : 'Name'}
                         </Button>
                       ))}
+                    {showPeople && (
+                      <AddAllButton
+                        checkIfAllPeopleOnItem={checkIfAllPeopleOnItem}
+                        handleAddAllPeopleToItem={handleAddAllPeopleToItem}
+                        handleRemoveAllPeopleFromItem={
+                          handleRemoveAllPeopleFromItem
+                        }
+                        item={item}
+                      />
+                    )}
                   </div>
                 </BlurFade>
               </div>
